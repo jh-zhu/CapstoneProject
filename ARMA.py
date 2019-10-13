@@ -45,7 +45,6 @@ class AR(object):
         for i in range(self.p,N):
             'X is from data initialization'
             Z[i]=self.train_data[i]-Phi.dot(np.array(self.train_data[i-self.p:i]).T)
-            #Z[i]=X[i]-Phi*Z[i-1] MA(1) model
             Summation += -1*((Z[i]**2)/(2*Sigma**2))
         res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
         return -res
@@ -92,7 +91,7 @@ class MA(object):
         Summation = 0
         for i in range(self.q,N):
             'X is from data initialization'
-            Z[i]=self.train_data[i]-Theta*Z[i-1] #MA(1) model
+            Z[i]=self.train_data[i]-Phi.dot(np.array(Z[i-self.p:i]).T) 
             Summation += -1*((Z[i]**2)/(2*Sigma**2))
         res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
         return -res
