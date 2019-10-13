@@ -6,33 +6,36 @@ Created on Sun Oct 13 12:02:07 2019
 @author: team
 """
 
-'''
-AR model data
-'''
+
 import numpy as np
 
-coeff=np.array([0.5,0.4]) # coefficients
-p = len(coeff) # AR(p)
-Sigma=1
-N=10000
-Z=np.random.normal(0,Sigma,N)
-X=[0]*N
+class dataARMA(object):
+    '''
+    Generate AR or MA model data
+    '''
+    def __init__(self, coeff, sigma, N, model='AR'):
+        
+        self.coeff = coeff #phi in AR, or theta in MA
+        self.sigma = sigma #volatility of the noise
+        self.N = N #number of data point
+        self.model = model #AR or MA data
+                
+    def generate(self):
+        '''
+        Generate data using pre-determined coefficients
+        output: generated data
+        '''
+        X=[0]*self.N
+        p = len(self.coeff)
+        Z=np.random.normal(0,self.sigma,self.N)
 
-for i in range(p,N):
-    X[i]=coeff.dot(np.array(X[i-p:i]).T) +Z[i] 
-plt.plot(X)
-
-
-'''
-MA model data
-'''
-coeff=np.array([0.5,0.4]) # coefficients
-q = len(coeff) # MA(q)
-Sigma=1
-N=10000
-Z=np.random.normal(0,Sigma,N)
-X=[0]*N
-
-for i in range(q,N):
-    X[i]=coeff.dot(np.array(Z[i-q:i]).T) +Z[i] 
-plt.plot(X)
+        if self.model!='AR' and self.model!='MA':
+            print(f'model is {self.model}')
+            return None
+            
+        for i in range(p,self.N):
+            if self.model=='AR':
+                X[i]=np.array(self.coeff).dot(np.array(X[i-p:i]).T) + Z[i]
+            else:
+                X[i]=np.array(self.coeff).dot(np.array(Z[i-p:i]).T) + Z[i]             
+        return X
