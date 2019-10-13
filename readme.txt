@@ -7,9 +7,11 @@ Cd: change directory
 Git clone (https://github.com/jh-zhu/CapstoneProject)
 Touch (readme.txt): create a file locally
 
-Git status
-Git add (index.html)/ git add -A: add all
-Git commit -m “added index.html”
-Git push
+Git status: check the difference between local and cloud
+Git add (index.html): add the local changed file
+Git add -A: add all local changed files
+Git commit -m “added index.html”: commit the add
+Git push: push local to repo
 
-Git pull
+Git pull: pull to local
+:wq exit blank lines in terminal. (Happens when you type git commit without -m)
