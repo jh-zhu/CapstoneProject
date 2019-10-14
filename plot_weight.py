@@ -62,19 +62,20 @@ exp1 = exponential_weighted_average(ars,0.05)
 exp2 = exponential_weighted_average(ars,0.6)
 exp3 = exponential_weighted_average(ars,0.1,redis=0.5)
 
-exp4 = follow_the_lead(ars)
+FTL = follow_the_lead(ars)
 
+OL=FTL # choose online learner
 weights = [[]for i in range(n)]
 
 for point in data_ar2_test[50:]:
-    exp1.update_point([point],[point])
-    W = exp1.get_weight()
+    OL.update_point([point],[point])
+    W = OL.get_weight()
     for i in range(n):
         weights[i].append(W[i])
 
 for weight in weights:
     plt.plot(weight)
-plt.legend(['ar1','ar2','ar3','ar4'])
+plt.legend(['ar1','ar2','ma1','ma2'])
 plt.show()
 
 for weight in weights:
