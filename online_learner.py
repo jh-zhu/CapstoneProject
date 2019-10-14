@@ -27,6 +27,7 @@ class learner(object):
         self.n = len(models)
         self.W = [1] * self.n # initial weight for each model is 1
         self.redis = redis
+        self.current_loss = None
         
     def train(self, train_data):
         '''
@@ -66,14 +67,17 @@ class learner(object):
             losses = raw_losses
         else:
             losses = self.redist_weight(raw_losses)
-            
+        
+        
+        self.current_loss = losses
+        
         self.update_weight(losses)
         
     def update_weight(losses):
         '''
         Based on the loss of each expert prediction, update the weight assigned to each expert
         '''
-        
+        pass
     
     def vote(self,y_predicts):
         '''Majority vote. Return the prediction given by higest vot'''
@@ -151,6 +155,9 @@ class learner(object):
                     losses[j] += redist_loss_each
         
         return losses
+    
+    def get_current_loss(self):
+        return self.current_loss
     
     
 class exponential_weighted_average(learner):
