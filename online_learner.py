@@ -30,6 +30,10 @@ class learner(object):
         self.current_loss = None
         self.algo_prediction = None
     
+    def reset(self):
+        # reset the weight of online learning algorithm
+        self.W = [1] * self.n
+    
     def train(self, train_data):
         '''
         Train all the experts using training data

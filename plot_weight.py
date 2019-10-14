@@ -18,25 +18,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import dataGen 
 
+from testOL import *
+
 
 '''
 On uniform known data set
 '''
-# generate ar2 data
-phi1,phi2=0.6,0.3 # xt = 0.6x_(t-1) + 0.3 x_(t-2) + Z
-sigma=10
-N=20000
-z=np.random.normal(0,sigma,N)
-data_ar2=[0]*N
-for i in range(2,N):
-    data_ar2[i]=phi1*data_ar2[i-1] + phi2*data_ar2[i-2] + z[i]
 
-# split ar2 generated data
-data_ar2_train = data_ar2[:10000]
-data_ar2_test = data_ar2[10000:]
 
 # Another way to generate ar2 data
-dat=dataGen.dataARMA([0.3,0.6],1,20000)
+dat=dataGen.dataARMA([0.3,0.6],10,20000)
 data=dat.generate()
 data_ar2_train = data[:10000]
 data_ar2_test = data[10000:]
@@ -53,33 +44,24 @@ for ar in ars:
     
 
 
-# warm up prediction
-for i in range(50):
-    for ar in ars:
-        ar.predict([data_ar2_test[i]])
 # put four experts into online learning algorithms
 exp1 = exponential_weighted_average(ars,0.05)
-exp2 = exponential_weighted_average(ars,0.6)
-exp3 = exponential_weighted_average(ars,0.1,redis=0.5)
+#exp2 = follow_the_lead(ars,0.05)
 
-FTL = follow_the_lead(ars)
 
-OL=FTL # choose online learner
-weights = [[]for i in range(n)]
+exp1.update_point([data_ar2_test[0]],[data_ar2_test[0]])
 
-for point in data_ar2_test[50:]:
-    OL.update_point([point],[point])
-    W = OL.get_weight()
-    for i in range(n):
-        weights[i].append(W[i])
+test = testOL(exp1,data_ar2_test)
 
-for weight in weights:
-    plt.plot(weight)
-plt.legend(['ar1','ar2','ma1','ma2'])
-plt.show()
+test.weight_plot()
 
-for weight in weights:
-    print(sum(weight))
+percent = test.compute_choose_right_expert()
+
+
+
+exp1.models[0].get_name()
+
+
 
 
     
