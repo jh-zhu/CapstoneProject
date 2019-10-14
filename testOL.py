@@ -22,7 +22,7 @@ class testOL(object):
             self.plot_length = len(self.test_data)
     
     
-    def weight_plot(self):
+    def weight_plot(self,title):
         '''
         plot weight change of experts over time 
         '''
@@ -45,6 +45,7 @@ class testOL(object):
         for weight in weights:
             plt.plot(weight[:self.plot_length])
         plt.legend(names)
+        plt.title(title)
         plt.show()
         
         
