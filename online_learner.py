@@ -210,6 +210,28 @@ class follow_the_lead(learner):
         self.W = [0] * self.n
         self.W[idx]= 1 
         
+      
+class randomized_majority_weight(learner):
+    '''
+    Give a distribution to all the experts, and assign them the weights based on their
+    currernt losses.
+    '''
+    def __init__(self,models,learning_rate, redis=0):
+        super().__init__(models,redis)
+        self.learning_rate = learning_rate
+        
+        
+    def update_weight(self,losses):
+        '''
+        if the current loss larger than the median of all the losses, then scale
+        the weight as beta. Else, no change.
+        '''
+        for i in range(self.n):
+            if losses[i]>= median(loss):
+                self.W[i] *= self.learning_rate
+        
+        self.normalize_weight()
+        
 
         
         
