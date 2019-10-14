@@ -45,11 +45,13 @@ data_ar2_test = data[10000:]
 n = 4 # number of experts
 ar1 = AR(1)
 ar2 = AR(2)
-ar3 = AR(3)
-ar4 = AR(4)
+ar3 = MA(1)
+ar4 = MA(2)
 ars = [ar1,ar2,ar3,ar4]
 for ar in ars:
     ar.train(data_ar2_train)
+    
+
 
 # warm up prediction
 for i in range(50):
@@ -65,15 +67,18 @@ exp4 = follow_the_lead(ars)
 weights = [[]for i in range(n)]
 
 for point in data_ar2_test[50:]:
-    exp4.update_point([point],[point])
-    W = exp4.get_weight()
+    exp1.update_point([point],[point])
+    W = exp1.get_weight()
     for i in range(n):
         weights[i].append(W[i])
 
 for weight in weights:
-    plt.plot(weight[:100])
+    plt.plot(weight)
 plt.legend(['ar1','ar2','ar3','ar4'])
 plt.show()
+
+for weight in weights:
+    print(sum(weight))
 
 
     

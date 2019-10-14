@@ -101,6 +101,8 @@ class MA(object):
         pass one point and make one prediction
         '''
         if len(test_data)>1: print('pass one point only')
-        self.data.append(test_data)
+        res=np.array(self.coeff[:-1]).dot(np.array(self.data[-self.q:]).T)
+        self.data.extend(test_data)
         self.data.pop(0)
-        return np.array(self.coeff[:-1]).dot(np.array(test_data[-self.q:]).T)
+        return res
+    
