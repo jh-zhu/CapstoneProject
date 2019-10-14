@@ -28,7 +28,8 @@ class learner(object):
         self.W = [1] * self.n # initial weight for each model is 1
         self.redis = redis
         self.current_loss = None
-        
+        self.algo_prediction = None
+    
     def train(self, train_data):
         '''
         Train all the experts using training data
@@ -58,6 +59,12 @@ class learner(object):
         input: x = a list of feature values of a point, y the label value
         '''
         predictions = self.predict(x)
+        
+        algo_prediction = 0
+        for w,v in zip(self.W,predictions):
+            algo_prediction += w*v
+        self.algo_prediction = algo_prediction
+        
         raw_losses=[None]*self.n
         
         for i,pr in enumerate(predictions):
@@ -100,6 +107,10 @@ class learner(object):
         s = sum(self.W)
         for i,w in enumerate(self.W):
             self.W[i] = self.W[i]/s
+    
+    def get_algo_prediction(self):
+        return self.algo_prediction
+    
     
     def algo_predict(self,x):
         '''
