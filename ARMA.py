@@ -21,6 +21,7 @@ class AR(object):
         self.train_data=None #training data
         self.data=None #saved data used to make prediction
         self.coeff=None
+        self.name = 'AR{}'.format(self.p)
         
     def train(self,train_data):
         '''
@@ -59,6 +60,9 @@ class AR(object):
         self.data.pop(0)
         return res
     
+    def get_name(self):
+        return self.name
+    
 class MA(object):
     '''
     MA(q) model, first trained, and then used to make prediction
@@ -68,6 +72,7 @@ class MA(object):
         self.train_data=None #training data
         self.data=None #saved data used to make prediction
         self.coeff=None
+        self.name = 'MA{}'.format(self.q)
         
     def train(self,train_data):
         '''
@@ -105,4 +110,7 @@ class MA(object):
         self.data.extend(test_data)
         self.data.pop(0)
         return res
+    
+    def get_name(self):
+        return self.name
     

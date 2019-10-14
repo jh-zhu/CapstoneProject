@@ -27,7 +27,13 @@ class learner(object):
         self.n = len(models)
         self.W = [1] * self.n # initial weight for each model is 1
         self.redis = redis
-        
+        self.current_loss = None
+        self.algo_prediction = None
+    
+    def reset(self):
+        # reset the weight of online learning algorithm
+        self.W = [1] * self.n
+    
     def train(self, train_data):
         '''
         Train all the experts using training data
@@ -57,6 +63,12 @@ class learner(object):
         input: x = a list of feature values of a point, y the label value
         '''
         predictions = self.predict(x)
+        
+        algo_prediction = 0
+        for w,v in zip(self.W,predictions):
+            algo_prediction += w*v
+        self.algo_prediction = algo_prediction
+        
         raw_losses=[None]*self.n
         
         for i,pr in enumerate(predictions):
@@ -66,14 +78,17 @@ class learner(object):
             losses = raw_losses
         else:
             losses = self.redist_weight(raw_losses)
-            
+        
+        
+        self.current_loss = losses
+        
         self.update_weight(losses)
         
     def update_weight(losses):
         '''
         Based on the loss of each expert prediction, update the weight assigned to each expert
         '''
-        
+        pass
     
     def vote(self,y_predicts):
         '''Majority vote. Return the prediction given by higest vot'''
@@ -96,6 +111,10 @@ class learner(object):
         s = sum(self.W)
         for i,w in enumerate(self.W):
             self.W[i] = self.W[i]/s
+    
+    def get_algo_prediction(self):
+        return self.algo_prediction
+    
     
     def algo_predict(self,x):
         '''
@@ -151,6 +170,9 @@ class learner(object):
                     losses[j] += redist_loss_each
         
         return losses
+    
+    def get_current_loss(self):
+        return self.current_loss
     
     
 class exponential_weighted_average(learner):
