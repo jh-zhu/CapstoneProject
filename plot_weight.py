@@ -16,6 +16,7 @@ from online_learner import *
 from ARMA import *
 import numpy as np
 import matplotlib.pyplot as plt
+import dataGen 
 
 
 '''
@@ -33,6 +34,12 @@ for i in range(2,N):
 # split ar2 generated data
 data_ar2_train = data_ar2[:10000]
 data_ar2_test = data_ar2[10000:]
+
+# Another way to generate ar2 data
+dat=dataGen.dataARMA([0.3,0.6],1,20000)
+data=dat.generate()
+data_ar2_train = data[:10000]
+data_ar2_test = data[10000:]
 
 # build ar 1,2,3,4 four models, and train those models using the first 10000 data
 n = 4 # number of experts
@@ -53,16 +60,18 @@ exp1 = exponential_weighted_average(ars,0.05)
 exp2 = exponential_weighted_average(ars,0.6)
 exp3 = exponential_weighted_average(ars,0.1,redis=0.5)
 
+exp4 = follow_the_lead(ars)
+
 weights = [[]for i in range(n)]
 
 for point in data_ar2_test[50:]:
-    exp1.update_point([point],[point])
-    W = exp1.get_weight()
+    exp4.update_point([point],[point])
+    W = exp4.get_weight()
     for i in range(n):
         weights[i].append(W[i])
 
 for weight in weights:
-    plt.plot(weight[:10])
+    plt.plot(weight[:100])
 plt.legend(['ar1','ar2','ar3','ar4'])
 plt.show()
 

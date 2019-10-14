@@ -169,10 +169,25 @@ class exponential_weighted_average(learner):
 
 class follow_the_lead(learner):
     '''
-    Not yet implemented
+    Follow the expert that has the least cumulative loss
     '''
-
-
+    def __init__(self,models,redis=0):
+        super().__init__(models,redis)
+        self.cum_loss = [0] * self.n #cumulative loss
+        
+        
+    def update_weight(self,losses):
+        '''
+        Find the expert that has the least cumulative loss, and assign all the weight to
+        it'''
+        
+        for i,loss in enumerate(losses):
+            self.cum_loss[i] += loss
+        val, idx = min((val, idx) for (idx, val) in enumerate(self.cum_loss))
+        
+        self.W = [0] * self.n
+        self.W[idx]= 1 
+        
 
         
         

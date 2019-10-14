@@ -25,7 +25,7 @@ class dataARMA(object):
         Generate data using pre-determined coefficients
         output: generated data
         '''
-        X=[0]*self.N
+        X=[0.01]*self.N
         p = len(self.coeff)
         Z=np.random.normal(0,self.sigma,self.N)
 
