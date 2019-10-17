@@ -23,19 +23,27 @@ class dataARMA(object):
     def generate(self):
         '''
         Generate data using pre-determined coefficients
-        output: generated data
+        output: [[x1,z1,y1],[x2,z2,y2],[x3,z3,y3]....[xn,zn,yn]]
         '''
         X=[0.01]*self.N
         p = len(self.coeff)
         Z=np.random.normal(0,self.sigma,self.N)
+        inputs=[[0]*2]* self.N
+        outputs=[0]* self.N
 
         if self.model!='AR' and self.model!='MA':
             print(f'model is {self.model}')
             return None
+        
+        for i in range(p):
+            inputs[i]=[X[i],Z[i]]
+            outputs[i]=X[i]
             
         for i in range(p,self.N):
             if self.model=='AR':
                 X[i]=np.array(self.coeff).dot(np.array(X[i-p:i]).T) + Z[i]
             else:
-                X[i]=np.array(self.coeff).dot(np.array(Z[i-p:i]).T) + Z[i]             
-        return X
+                X[i]=np.array(self.coeff).dot(np.array(Z[i-p:i]).T) + Z[i]
+            inputs[i]=[X[i],Z[i]]
+            outputs[i]=X[i]
+        return inputs,outputs

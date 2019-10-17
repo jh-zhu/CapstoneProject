@@ -23,30 +23,43 @@ class trainOL(object):
                 redistribute = redistribute loss
         '''
         self.onlineLearner = onlineLearner
-        self.dataGenerator = dataARMA(coefficient,sigma,N*2,model=modelName) #generate first stage data
-        data=self.dataGenerator.generate() #generate data using model (AR or MA)
-                
-        # split generated data to train data and test data
-        self.trainData = data[:N] #half amount of data is used to train the online learner
-        self.onlineLearner.train(self.trainData) # train the online learner
-        self.testData=None
-        if stage==1:
-            self.testData = data[N:]
-            
-        elif stage==2:
-            self.dataGenerator2 = dataARMA(coefficient,sigma,math.floor(N/2),model="MA")
-            testData2=self.dataGenerator2.generate()
-            self.testData = data[N:math.floor(1.5*N)] + testData2
-        else:
-            print('stage needs to be less than 2 for now')
-
         self.sigma = sigma
-        
+        if stage!=1 and stage!=2:
+            print('Warning: stage needs to be either 1 or 2 for now')
+            
+        if stage==1:        
+            inputs,outputs = dataARMA(coefficient,sigma,N*2,model=modelName).generate() #generate data
+                    
+            # Train the online learner using first half data
+            self.onlineLearner.train(outputs[:N]) 
+            # The rest of data is test data
+            self.inputs=inputs[N:]
+            self.outputs=outputs[N:]
+            
+        else:
+            ar_inputs,ar_outputs = dataARMA(coefficient,sigma,N).generate()
+            ma_inputs,ma_outputs = dataARMA(coefficient,sigma,N,model = "MA").generate()
+            #Training data
+            ar_data_train = ar_outputs[:N]
+            ma_data_train = ma_outputs[:N]
+            #Test data
+            self.inputs = ar_inputs[N:] +  ma_inputs[N:]
+            self.outputs = ar_outputs[N:] + ma_outputs[N:]
+            
+            #Train the model using training data
+            for model in self.onlineLearner.models:
+                if model.name.startswith('AR'):
+                    model.train(ar_data_train)
+                elif model.name.startswith('MA'):
+                    model.train(ma_data_train)
+                else:
+                    print('Warning: 2 stage models are not within range')
+                                    
     def getTestData(self):
         '''
         Get test data
         '''
-        return self.testData
+        return self.inputs,self.outputs
         
     def getSigma(self):
         return self.sigma
