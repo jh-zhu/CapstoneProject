@@ -54,9 +54,11 @@ class AR(object):
         '''
         pass one point and make one prediction
         '''
-        if len(test_data)>1: print('pass one point only')
+        # It's a AR model, get the first argument (x)
+        new_x = test_data[0]
+        
         res = np.array(self.coeff[:-1]).dot(np.array(self.data[-self.p:]).T)
-        self.data.extend(test_data)
+        self.data.append(new_x)
         self.data.pop(0)
         return res
     
@@ -105,9 +107,12 @@ class MA(object):
         '''
         pass one point and make one prediction
         '''
-        if len(test_data)>1: print('pass one point only')
+        
+        # It's a MA model, get the second argument (z)
+        new_z = test_data[1]
+        
         res=np.array(self.coeff[:-1]).dot(np.array(self.data[-self.q:]).T)
-        self.data.extend(test_data)
+        self.data.append(new_z)
         self.data.pop(0)
         return res
     

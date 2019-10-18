@@ -13,14 +13,13 @@ class trainOL(object):
     This class train the Online Learner using training data of
     predetermined features
     '''
-    def __init__(self,onlineLearner,coefficient,sigma,N,modelName = 'AR',stage=1,redistribute=0):
+    def __init__(self,onlineLearner,coefficient,sigma,N,modelName = 'AR',stage=1):
         '''
         input: onlineLearner = the onlineLearner
                 coefficient = coefficients of ARMA model used to generate data
                 sigma = noise
                 N = number of train data 
                 stage = number of stages of test data
-                redistribute = redistribute loss
         '''
         self.onlineLearner = onlineLearner
         self.sigma = sigma
@@ -37,8 +36,8 @@ class trainOL(object):
             self.outputs=outputs[N:]
             
         else:
-            ar_inputs,ar_outputs = dataARMA(coefficient,sigma,N).generate()
-            ma_inputs,ma_outputs = dataARMA(coefficient,sigma,N,model = "MA").generate()
+            ar_inputs,ar_outputs = dataARMA(coefficient,sigma,N*2).generate()
+            ma_inputs,ma_outputs = dataARMA(coefficient,sigma,N*2,model = "MA").generate()
             #Training data
             ar_data_train = ar_outputs[:N]
             ma_data_train = ma_outputs[:N]

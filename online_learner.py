@@ -62,24 +62,26 @@ class learner(object):
         See a point and make an update
         input: x = a list of feature values of a point, y the label value
         '''
+        # get predictions made by each expert using current x
         predictions = self.predict(x)
         
+        
+        # calculate the prediction made by algo
         algo_prediction = 0
         for w,v in zip(self.W,predictions):
             algo_prediction += w*v
         self.algo_prediction = algo_prediction
         
+        # losses occured by each expert
         raw_losses=[None]*self.n
-        
         for i,pr in enumerate(predictions):
             raw_losses[i]=self.loss(y,pr)
         
+        # decide if we want to redistribute current loss
         if self.redis ==0:
             losses = raw_losses
         else:
             losses = self.redist_weight(raw_losses)
-        
-        
         self.current_loss = losses
         
         self.update_weight(losses)

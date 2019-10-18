@@ -10,38 +10,46 @@ import matplotlib.pyplot as plt
 
 class testOL(object):
     
-    def __init__(self,online_learner,test_data,plot_length = 0):
-        
+    def __init__(self,online_learner,X,Y,plot_length = 0):
+        '''
+        argument: a trained online_learner, X: test_data input, Y: test_data label
+        '''
         self.online_learner = online_learner
-        self.test_data = test_data
+        # test data input
+        self.X = X
+        # test data label
+        self.Y = Y
         self.n_experts = self.online_learner.n
-        
         if plot_length > 0:
             self.plot_length = plot_length
         else:
-            self.plot_length = len(self.test_data)
+            self.plot_length = len(self.Y)
     
+    
+    def compute_weight(self):
+        '''
+        Compute the weihgt change of experts on test data
+        '''
+        weights = [[] for i in range(self.n_experts)]
+        for x,y in zip(self.X,self.Y):
+            self.online_learner.update_point(x,y)
+            W = self.online_learner.get_weight()
+            
+            for i in range(self.n_experts):
+                weights[i].append(W[i])
+        
+        self.online_learner.reset()        
+        return weights
     
     def weight_plot(self,title,xlabel,ylabel):
-        '''
-        plot weight change of experts over time 
-        '''
+        
+        weights = self.compute_weight()
         
         experts = self.online_learner.models
         names = []
         for expert in experts:
             names.append(expert.get_name())
         
-        weights = [[] for i in range(self.n_experts)]
-        for data in self.test_data:
-            self.online_learner.update_point([data],[data])
-            W = self.online_learner.get_weight()
-            
-            for i in range(self.n_experts):
-                weights[i].append(W[i])
-        
-        self.online_learner.reset()
-        # plot 
         for weight in weights:
             plt.plot(weight[:self.plot_length])
         plt.legend(names)
@@ -55,18 +63,26 @@ class testOL(object):
         # cumulative loss of each expert 
         cumulative_model_loss = [0] * self.n_experts
         # loss by algorithm
-        algo_cumulative_loss = 0
+        cumulative_algo_loss = 0
         
-        for data in self.test_data:
-            self.online_learner.update_point([data],[data])
+        for x,y in zip(self.X,self.Y):
+            # online learner see a point
+            # when update_point is called, predictions made by experts,
+            # losses occured for experts, and prediction made by algorithm 
+            # are all generated. No need to call other functions, just 
+            # get the statsitcs you want
+            self.online_learner.update_point(x,y)
             
+            # For experts: add current loss to cumulative loss
             current_model_loss = self.online_learner.get_current_loss()
             for i in range(self.n_experts):
                 cumulative_model_loss[i] += current_model_loss[i]
             
+            # get the prediction made by algo
             algo_prediction = self.online_learner.get_algo_prediction()
             
-            algo_cumulative_loss += self.online_learner.loss(data,algo_prediction)
+            # cumulate the loss made by algo
+            algo_cumulative_loss += self.online_learner.loss(y,algo_prediction)
         
         self.online_learner.reset()
         # compute regret (difference between algorith and best expert)
@@ -83,8 +99,8 @@ class testOL(object):
         # model cumulative loss
         model_cumulative_loss = [0] * self.n_experts
         
-        for data in self.test_data:
-            self.online_learner.update_point([data],[data])
+        for x,y in zip(self.X,self.Y):
+            self.online_learner.update_point(x,y)
             model_current_loss = self.online_learner.get_current_loss()
             W_matrix.append(self.online_learner.get_weight().copy())
             for i in range(self.n_experts):
