@@ -6,6 +6,7 @@
 
 import random
 import math
+import statistics
 
 '''
 This is the parent online learner module. Different online learners can inherit from this parent
@@ -213,7 +214,7 @@ class follow_the_lead(learner):
         self.W[idx]= 1 
         
       
-class randomized_majority_weight(learner):
+class randomized_weighted_majority(learner):
     '''
     Give a distribution to all the experts, and assign them the weights based on their
     currernt losses.
@@ -221,19 +222,18 @@ class randomized_majority_weight(learner):
     def __init__(self,models,learning_rate, redis=0):
         super().__init__(models,redis)
         self.learning_rate = learning_rate
-        
-        
+
     def update_weight(self,losses):
         '''
         if the current loss larger than the median of all the losses, then scale
         the weight as beta. Else, no change.
         '''
         for i in range(self.n):
-            if losses[i]>= median(loss):
+            if losses[i]>= statistics.median(losses):
                 self.W[i] *= self.learning_rate
         
         self.normalize_weight()
-        
+    
 
         
         

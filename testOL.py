@@ -41,6 +41,8 @@ class testOL(object):
         self.online_learner.reset()        
         return weights
     
+    
+    
     def weight_plot(self,title,xlabel,ylabel):
         
         weights = self.compute_weight()
@@ -64,6 +66,7 @@ class testOL(object):
         cumulative_model_loss = [0] * self.n_experts
         # loss by algorithm
         cumulative_algo_loss = 0
+        algo_cumulative_loss=0
         
         for x,y in zip(self.X,self.Y):
             # online learner see a point
@@ -96,25 +99,25 @@ class testOL(object):
         # weight matrix
         W_matrix = []
         
-        # model cumulative loss
-        model_cumulative_loss = [0] * self.n_experts
-        
-        for x,y in zip(self.X,self.Y):
-            self.online_learner.update_point(x,y)
-            model_current_loss = self.online_learner.get_current_loss()
-            W_matrix.append(self.online_learner.get_weight().copy())
-            for i in range(self.n_experts):
-                model_cumulative_loss[i] += model_current_loss[i]
-        
         if right_expert < 0 :
+            # model cumulative loss
+            model_cumulative_loss = [0] * self.n_experts
+            for x,y in zip(self.X,self.Y):
+                self.online_learner.update_point(x,y)
+                model_current_loss = self.online_learner.get_current_loss()
+                W_matrix.append(self.online_learner.get_weight().copy())
+                for i in range(self.n_experts):
+                    model_cumulative_loss[i] += model_current_loss[i]
+            
             right_expert  = model_cumulative_loss.index(min(model_cumulative_loss))
-        
+            
+        # step is the number of the right expert predicts right
         step = 0
         for weight in W_matrix:
             step += weight[right_expert]
         
         self.online_learner.reset()
-        return step/len(self.test_data)
+        return right_expert, step/len(self.X)
         
         
         
