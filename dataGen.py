@@ -35,9 +35,7 @@ class dataARMA(object):
         if self.model!='AR' and self.model!='MA':
             print(f'model is {self.model}')
             return None
-               
-        '''
-        The other version 
+                
         for i in range(p,self.N):
             if self.model=='AR':
                 X[i]=np.array(self.coeff).dot(np.array(X[i-p:i]).T) + Z[i]
@@ -46,8 +44,8 @@ class dataARMA(object):
             inputs[i]=[X[i],Z[i]]
             outputs[i]=X[i]
         return inputs,outputs
-        '''
         
+        '''
         for i in range(p,self.N):
             X[i]=np.array(self.coeff).dot(np.array(X[i-p:i]).T) + Z[i]
             Z[i]=np.array(self.coeff).dot(np.array(Z[i-p:i]).T)
@@ -56,4 +54,13 @@ class dataARMA(object):
                 outputs[i] = X[i]
             else:
                 outputs[i] = Z[i]
+        # add first few items
+        for j in range(0,p):
+            inputs[j] = [X[j],Z[j]]
+            if self.model == "AR":
+                outputs[j] = X[j]
+            else:
+                outputs[j] = Z[j]
+        '''
+        
         return inputs,outputs

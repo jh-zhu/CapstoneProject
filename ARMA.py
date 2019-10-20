@@ -57,7 +57,7 @@ class AR(object):
         # It's a AR model, get the first argument (x)
         new_x = test_data[0]
         
-        res = np.array(self.coeff[:-1]).dot(np.array(self.data[-self.p:]).T)
+        res = np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.p:]).T)
         self.data.append(new_x)
         self.data.pop(0)
         return res
@@ -111,7 +111,7 @@ class MA(object):
         # It's a MA model, get the second argument (z)
         new_z = test_data[1]
         
-        res=np.array(self.coeff[:-1]).dot(np.array(self.data[-self.q:]).T)
+        res=np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.q:]).T)
         self.data.append(new_z)
         self.data.pop(0)
         return res
