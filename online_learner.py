@@ -86,12 +86,17 @@ class learner(object):
         self.current_loss = losses
         
         self.update_weight(losses)
+        self.update_experts(x,y)
         
-    def update_weight(losses):
+    def update_weight(self,losses):
         '''
         Based on the loss of each expert prediction, update the weight assigned to each expert
         '''
         pass
+    
+    def update_experts(self,x,y):
+        for mod in self.models:
+            mod.train_update(x,y)
     
     def vote(self,y_predicts):
         '''Majority vote. Return the prediction given by higest vot'''

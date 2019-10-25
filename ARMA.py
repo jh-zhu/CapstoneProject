@@ -32,6 +32,14 @@ class AR(object):
         initials=[0.1]*(self.p + 1) # p phi and 1 sigma
         
         self.coeff=fmin(self.MLE,initials)
+        
+    def train_update(self,x,y):
+        '''
+        pass a point in and train the model with the new point
+        '''
+        self.train_data.append(y)
+        self.train_data.pop(0)
+        self.coeff=fmin(self.MLE,[0.1]*(self.p + 1))
 
     def MLE(self,initial):
         '''
