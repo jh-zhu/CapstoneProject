@@ -71,6 +71,7 @@ class ARIMA(object):
 #        self.data.append(new_x)
 #        self.data.pop(0)
         return res
+
 class AR(object):
     '''
     AR(p) model, first trained, and then used to make prediction

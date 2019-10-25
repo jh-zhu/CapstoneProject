@@ -3,12 +3,12 @@
 """
 @author: Jiahao, Yitong
 """
-from online_learner import *
-from ARMA import *
-from trainOL import *
-from testOL import * 
-from dataGen import *
-from experts import *
+from core.online_learner import *
+from depreciated.ARMA import *
+from depreciated.trainOL import *
+from utils.testOL import * 
+from depreciated.dataGen import *
+from core.experts import *
 
 import numpy as np
 import matplotlib.pyplot as plt
