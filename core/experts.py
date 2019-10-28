@@ -5,74 +5,178 @@ Created on Fri Oct 25 12:27:17 2019
 
 @author: yitongcai,Ming,Jiahao
 """
-from pmdarima import auto_arima
 import statsmodels.tsa.statespace.sarimax as sarimax
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.optimize import fmin
 import math
+import sklearn.linear_model as linear
+import sklearn.svm as svm
 
 
-class ARIMA(object):
-    '''
-    ARIMA(p,d,q) model, first trained, and then used to make prediction
-    '''
-    def __init__(self,p,d,q,freq):
-        '''
-        p: max order of AR model
-        q: max order of MA model
-        freq: ex. daily:365 / quarter:4 / month:12 / annual:1
-        '''
-        self.p=p
-        self.d=d
-        self.q=q
-        self.freq=freq
-        self.train_data=None #training data
-        self.data=None #saved data used to make prediction
-        self.coeff=None
-        self.name = 'ARMA({},{},{})'.format(self.p, self.d, self.q)
-
+class experts(object):
+    def  __init__(self):
+        self.X_train = None    # training data for X with unchanged size
+        self.y_train = None    # training data for y with unchanged size
+        self.coeff = None         # There is no constants included in the coeffient list
+        self.name = None
+        self.model = None
+        self.fitted_model=None
+        
     def get_name(self):
         return self.name
-
-
-    def train(self,train_data):
+    
+    def set_params(self, **params):
+        self.model.set_params(**params)
+            
+    def get_params(self):
+        return self.fitted_model.get_params()
+    
+    def train(self, X_train, y_train):
         '''
-        Train the data using train_data
+        :param: X_train: all records of all features (2d list)
+        :param: y_train: all records of y (list [y1, ... yn])
         '''
-        self.train_data=train_data
-        self.data=train_data[-self.q:]
-        # m refers to the number of periods in each season
-        stepwise_model = auto_arima(self.train_data,start_p=0, start_q=0,
-                                       max_p=self.p, max_q=self.q, m=self.freq,
-                                        d=self.d, D=None, trace=True,
-#                                       error_action='ignore',
-#                                      suppress_warnings=True
-                                        stepwise=True)
-#        print( stepwise_model.summary())
-        order = stepwise_model.get_params()['order']
-        seasonal_order = stepwise_model.get_params()['seasonal_order']
-        model=sarimax.SARIMAX(endog=train_data,order=order,seasonal_order=seasonal_order,trend='c',enforce_invertibility=False)
-        results=model.fit()
-#        print(results.summary())
-        '''constant ARs MAs variance_of_error_term'''
-        self.coeff = results.params[:-1]
-
-
-    def predict(self,test_data):
+        pass
+    
+    def train_update(self,new_x, new_y):
+        '''
+        pass new observation x and y in and remove the first observation,
+        then update the model with a window size of N
+        '''
+        pass
+    
+    def predict(self,x_test):
         '''
         pass one point and make one prediction
+        :param x_test: one record of all the features (list [f1, ... fk])
+        :return: prediction y
         '''
-        # It's a AR model, get the first argument (x)
-        stepwise_model.predict()
-#        new_x = test_data[0]
-#
-#        res = np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.p:]).T)
-#        self.data.append(new_x)
-#        self.data.pop(0)
-        return res
+        pass
+        
+class LinearRegression(experts):
+    def __init__(self):
+        super().__init__()
+        self.name = 'LinearReg'
+        self.model = linear.LinearRegression()
+     
+    def train(self, X_train, y_train):
+        self.X_train, self.y_train = X_train, y_train
+        self.fitted_model =  self.model.fit(self.X_train, self.y_train)     
+        self.coeff = self.fitted_model.coef_
+        
+    def train_update(self, new_x, new_y):
+        if self.X_train:
+            self.X_train.pop(0)
+            self.X_train.append(new_x)
+        if self.y_train:
+            self.y_train.pop(0)
+            self.y_train.append(new_y)
+        self.train(self.X_train, self.y_train)     
+            
+    def predict(self,x_test):
+        pred_y = self.fitted_model.predict(x_test)
+        return pred_y
 
-class AR(object):
+class SVR(experts):
+    '''
+    degree for 'poly'(default=3)
+    epsilon=0.1, verbose=False'''
+    def __init__(self, kernel, gamma, C, epsilon=0.1):
+        '''
+        :param kernel: ’rbf’,‘linear’, ‘poly’, ‘sigmoid’, ‘precomputed’ 
+        :param gamma: kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’
+                      measure how exactly fit the training data set (higher means more exact)
+        :param C: penalty parameter C of the error term
+        '''
+        super().__init__()
+        self.kernel = kernel
+        self.gamma = gamma
+        self.C = C
+        self.epsilon = epsilon
+        self.name = 'SVR_{}'.format(self.kernel)
+        self.model = svm.SVR(kernel=self.kernel, C=self.C, gamma=self.gamma, epsilon=self.epsilon)
+        
+    def train(self, X_train, y_train):
+        self.X_train, self.y_train = X_train, y_train
+        self.fitted_model.fit(self.X_train, self.y_train)
+       
+    def train_update(self, new_x, new_y):
+        if self.X_train:
+            self.X_train.pop(0)
+            self.X_train.append(new_x)
+        if self.y_train:
+            self.y_train.pop(0)
+            self.y_train.append(new_y)
+        self.train(self.X_train, self.y_train)             
+        
+    def predict(self,x_test):
+        pred_y = self.fitted_model.predict(x_test)
+        return pred_y
+        
+
+class SARIMAX(experts):
+    '''
+    SARIMAX((p,d,q), (P,D,Q,m)) model is ARIMA + Seasonality + Exogeneous X
+    SARIMAX((p,d,q), (0,0,0,1)) is ARIMAX(p,d,q)
+    '''
+    def __init__(self,p,d,q,P,D,Q,m):
+        '''
+        :param p: order of AR model
+        :param d: order of differece
+        :param q: order of MA model
+        :param P: order of AR model of seasonality
+        :param D: order of differece of seasonality
+        :param Q: order of MA model of seasonality
+        :param m: number of periods in each season ex. daily:365 / quarter:4 / month:12 / annual:1
+        '''
+        super().__init__()
+        self.p=p 
+        self.d=d
+        self.q=q
+        self.P=P 
+        self.D=D
+        self.Q=Q
+        self.m=m
+        self.name = 'SARIMA(({},{},{}),({},{},{},{}))'.format(self.p, self.d, self.q,
+                                                              self.P, self.D, self.Q, self.m)
+        
+    def set_params(self, **params):
+        self.model.update(**params)
+     
+    def train(self, X_train, y_train):
+        self.X_train, self.y_train = X_train, y_train
+        self.model = sarimax.SARIMAX(endog=self.y_train, exog=self.X_train, order=(self.p, self.d, self.q),
+                                     seasonal_order=(self.P, self.D, self.Q, self.m),trend='c')
+        self.fitted_model = self.model.fit(disp=0)
+        self.coeff = self.fitted_model.params[1:-1]
+        
+    def train_update(self, new_x, new_y):
+        # decide if new_x is the first input for X_train 
+        if self.X_train:
+            self.X_train.pop(0)
+            self.X_train.append(new_x)
+        else:
+            if new_x:
+                self.X_train = [new_x]
+            # This is for SARIMA case without exogenous input X, in this case, new_x is None
+            else:
+                self.X_train = new_x
+                
+         # decide if new_y is the first input for y_train
+        if self.y_train:
+            self.y_train.pop(0)
+            self.y_train.append(new_y)
+        else:
+            self.y_train = [new_y]
+        # re-train the whole new input X and y (problem: slow)    
+        self.train(self.X_train, self.y_train)
+   
+    def predict(self,x_test):
+        pred_y = self.fitted_model.predict(1, exogenous=x_test)
+        return pred_y
+
+
+class AR(experts):
     '''
     AR(p) model, first trained, and then used to make prediction
     '''
@@ -80,7 +184,6 @@ class AR(object):
         self.p=p
         self.train_data=None #training data
         self.data=None #saved data used to make prediction
-        self.coeff=None
         self.name = 'AR{}'.format(self.p)
 
     def train(self,train_data):
@@ -88,7 +191,7 @@ class AR(object):
         Train the data using train_data
         '''
         self.train_data=train_data
-        self.data=train_data[-self.p:]
+        self.data= self.train_data[-self.p:]
         initials=[0.1]*(self.p + 1) # p phi and 1 sigma
 
         self.coeff=fmin(self.MLE,initials)
@@ -118,22 +221,20 @@ class AR(object):
         res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
         return -res
 
-    def predict(self,test_data):
+    def predict(self,x_test):
         '''
         pass one point and make one prediction
         '''
         # It's a AR model, get the first argument (x)
-        new_x = test_data[0]
+        new_x = x_test[0]
 
         res = np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.p:]).T)
         self.data.append(new_x)
         self.data.pop(0)
         return res
 
-    def get_name(self):
-        return self.name
 
-class MA(object):
+class MA(experts):
     '''
     MA(q) model, first trained, and then used to make prediction
     '''
@@ -141,15 +242,14 @@ class MA(object):
         self.q=q
         self.train_data=None #training data
         self.data=None #saved data used to make prediction
-        self.coeff=None
         self.name = 'MA{}'.format(self.q)
 
     def train(self,train_data):
         '''
         Train the data using train_data
         '''
-        self.train_data=train_data
-        self.data=train_data[-self.q:]
+        self.train_data= train_data
+        self.data=self.train_data[-self.q:]
         initials=[0.1]*(self.q + 1) # p phi and 1 sigma
 
         self.coeff=fmin(self.MLE,initials)
@@ -171,18 +271,16 @@ class MA(object):
         res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
         return -res
 
-    def predict(self,test_data):
+    def predict(self,x_test):
         '''
         pass one point and make one prediction
         '''
 
         # It's a MA model, get the second argument (z)
-        new_z = test_data[1]
+        new_z = x_test[1]
 
         res=np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.q:]).T)
         self.data.append(new_z)
         self.data.pop(0)
         return res
 
-    def get_name(self):
-        return self.name

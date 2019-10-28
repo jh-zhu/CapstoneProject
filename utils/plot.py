@@ -21,22 +21,23 @@ class summary_plots(object):
     def __init__(self, learner_name):
         # models 
         self.learner_name = learner_name
-#        ar1 = AR(1)
-#        ar2 = AR(2)
-#        ma1 = MA(1)
-#        ma2 = MA(2)
-#        self.models = [ar1,ar2,ma1,ma2]
-#        self.model_names=[ar1.name,ar2.name,ma1.name,ma2.name]
-        
-        '''ARIMA'''
-        arima = ARIMA(2,0,2,1)
-        self.models = [arima]
-        self.model_names=[arima.name]
-        
+        ar1 = AR(1)
+        ar2 = AR(2)
+        ma1 = MA(1)
+        ma2 = MA(2)
+        sarimax = SARIMAX(2,0,2,0,0,0,1) 
+        svr = SVR('rbf',1e-7, 10)
+#        self.models = [ar1, ar2, ma1, ma2, sarimax]
+#        self.model_names=[ar1.name, ar2.name, ma1.name, ma2.name, sarimax.name]
+        self.models = [sarimax, svr]
+        self.model_names=[sarimax.name, svr.name]
+
          
         
     def plot_weight(self, redis, sigma, coefficients, N, stage):
-        
+        '''
+        plot weight for all the experts over data inputs
+        '''
         if self.learner_name == "EWA":
             learner = exponential_weighted_average(self.models,0.01,redis=redis)
         elif self.learner_name == "RWM":
@@ -52,14 +53,26 @@ class summary_plots(object):
             trainer = trainOL(learner,coefficients,sigma,N,modelName='MA',stage=1)
         test_data = trainer.getTestData()       
         tester = testOL(learner,test_data[0],test_data[1])
+        
+        
+        weights = tester.compute_weight()      
+        experts = tester.online_learner.models
+        names = []
+        for expert in experts:
+            names.append(expert.get_name())       
+        for weight in weights:
+            plt.plot(weight[:len(test_data[1])])    # len(test_data[1] is plot_length
             
 #        title  = "weight_{}_stage{}_{}_{}".format(self.learner_name, stage, redis, sigma)
 #        title  = "stability : {}".format( redis)
-        title=''
-        
+        title=''        
         xlabel = "data point"
         ylabel = "weight"
-        tester.weight_plot(title,xlabel,ylabel)
+        plt.legend(names)
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.show()
         
         
     def plot_regret(self, redis, sigmas, coefficients, N, stage):

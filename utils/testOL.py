@@ -10,20 +10,21 @@ import matplotlib.pyplot as plt
 
 class testOL(object):
     
-    def __init__(self,online_learner,X,Y,plot_length = 0):
+    def __init__(self,online_learner, X_test, y_test, plot_length = 0):
         '''
-        argument: a trained online_learner, X: test_data input, Y: test_data label
+        argument: a trained online_learner, X_test: test_data input, y_test: test_data label
         '''
         self.online_learner = online_learner
         # test data input
-        self.X = X
+        self.X_test = X_test
         # test data label
-        self.Y = Y
+        self.y_test = y_test
         self.n_experts = self.online_learner.n
-        if plot_length > 0:
-            self.plot_length = plot_length
-        else:
-            self.plot_length = len(self.Y)
+        
+#        if plot_length > 0:
+#            self.plot_length = plot_length
+#        else:
+#            self.plot_length = len(self.y_test)
     
     
     def compute_weight(self):
@@ -31,7 +32,11 @@ class testOL(object):
         Compute the weihgt change of experts on test data
         '''
         weights = [[] for i in range(self.n_experts)]
-        for x,y in zip(self.X,self.Y):
+        # This only happens when all the experts doesn't include anhy exogenous inputs X 
+        if not self.X_test:
+            self.X_test=[None]*len(self.y_test)
+                        
+        for x,y in zip(self.X_test,self.y_test):
             self.online_learner.update_point(x,y)
             W = self.online_learner.get_weight()
             
@@ -41,24 +46,23 @@ class testOL(object):
         self.online_learner.reset()        
         return weights
     
-    
-    
-    def weight_plot(self,title,xlabel,ylabel):
-        
-        weights = self.compute_weight()
-        
-        experts = self.online_learner.models
-        names = []
-        for expert in experts:
-            names.append(expert.get_name())
-        
-        for weight in weights:
-            plt.plot(weight[:self.plot_length])
-        plt.legend(names)
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.show()
+
+#    def weight_plot(self,title,xlabel,ylabel):
+#        
+#        weights = self.compute_weight()
+#        
+#        experts = self.online_learner.models
+#        names = []
+#        for expert in experts:
+#            names.append(expert.get_name())
+#        
+#        for weight in weights:
+#            plt.plot(weight[:self.plot_length])
+#        plt.legend(names)
+#        plt.title(title)
+#        plt.xlabel(xlabel)
+#        plt.ylabel(ylabel)
+#        plt.show()
         
         
     def compute_regret(self):
@@ -68,12 +72,13 @@ class testOL(object):
         cumulative_algo_loss = 0
         algo_cumulative_loss=0
         
-        for x,y in zip(self.X,self.Y):
-            # online learner see a point
-            # when update_point is called, predictions made by experts,
-            # losses occured for experts, and prediction made by algorithm 
-            # are all generated. No need to call other functions, just 
-            # get the statsitcs you want
+        for x,y in zip(self.X_test,self.y_test):
+            '''
+             online learner see a point when update_point is called, 
+             predictions made by experts, losses occured for experts, 
+             and prediction made by algorithm are all generated. 
+             No need to call other functions, just get the statsitcs you want
+            '''
             self.online_learner.update_point(x,y)
             
             # For experts: add current loss to cumulative loss
@@ -102,7 +107,7 @@ class testOL(object):
         if right_expert < 0 :
             # model cumulative loss
             model_cumulative_loss = [0] * self.n_experts
-            for x,y in zip(self.X,self.Y):
+            for x,y in zip(self.X_test,self.y_test):
                 self.online_learner.update_point(x,y)
                 model_current_loss = self.online_learner.get_current_loss()
                 W_matrix.append(self.online_learner.get_weight().copy())
@@ -117,7 +122,7 @@ class testOL(object):
             step += weight[right_expert]
         
         self.online_learner.reset()
-        return right_expert, step/len(self.X)
+        return right_expert, step/len(self.X_test)
         
         
         

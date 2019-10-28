@@ -24,15 +24,11 @@ class ARMA_generator(object):
     def generate(self):
         '''
         Generate data using pre-determined coefficients
-        input: [[x1,z1],[x2,z2],......[xn,zn]]
         output: [y1,y2,y3,.....,yn]
         '''
         np.random.seed(12345)
-        arparams = np.array(self.ar_coefs)
-        maparams = np.array(self.ma_coefs)
-        print(arparams,maparams)
-        ar = np.r_[1, -arparams] # add zero-lag and negate
-        ma = np.r_[1, maparams] # add zero-lag
+        ar = np.r_[1, [-i for i in self.ar_coefs]]  # add zero-lag and negate
+        ma = np.r_[1, self.ma_coefs]                # add zero-lag
         outputs = tsa.arma_generate_sample(ar, ma, self.N)
-        return outputs
+        return list(outputs)
     
