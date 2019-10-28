@@ -33,11 +33,11 @@ learner = follow_the_lead(models,redis = redis)
 
 
 N = 1000 # number of data to generate
-model = models[0] # the model to generate 
-model_parameter = [2,1,1,365] # parameter of data generating model
 noise_level = 1 # level of noise (sigma), added to the generating process
+kernel = 'linear_regression' # the model to generate 
+parameter = [1,[1,2,1.5],noise_level,N] # parameter of data generating model
 
-generator = data_generator(N,model,model_parameter,noise_level)
+generator = data_generator(kernel,parameter,noise_level,N)
 X_train,y_train = generator.generate()
 X_test,y_test = generator.generate()
 

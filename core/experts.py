@@ -25,10 +25,10 @@ class experts(object):
     def get_name(self):
         return self.name
     
-    def set_params(self, **params):
+    def set_hyper_params(self, **params):
         self.model.set_params(**params)
             
-    def get_params(self):
+    def get_hyper_params(self):
         return self.fitted_model.get_params()
     
     def train(self, X_train, y_train):
@@ -140,7 +140,7 @@ class SARIMAX(experts):
         self.name = 'SARIMA(({},{},{}),({},{},{},{}))'.format(self.p, self.d, self.q,
                                                               self.P, self.D, self.Q, self.m)
         
-    def set_params(self, **params):
+    def set_hyper_params(self, **params):
         self.model.update(**params)
      
     def train(self, X_train, y_train):
