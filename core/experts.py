@@ -186,7 +186,7 @@ class AR(experts):
         self.data=None #saved data used to make prediction
         self.name = 'AR{}'.format(self.p)
 
-    def train(self,train_data):
+    def train(self,X_train,train_data):
         '''
         Train the data using train_data
         '''
