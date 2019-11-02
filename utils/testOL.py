@@ -45,24 +45,6 @@ class testOL(object):
         
         self.online_learner.reset()        
         return weights
-    
-
-#    def weight_plot(self,title,xlabel,ylabel):
-#        
-#        weights = self.compute_weight()
-#        
-#        experts = self.online_learner.models
-#        names = []
-#        for expert in experts:
-#            names.append(expert.get_name())
-#        
-#        for weight in weights:
-#            plt.plot(weight[:self.plot_length])
-#        plt.legend(names)
-#        plt.title(title)
-#        plt.xlabel(xlabel)
-#        plt.ylabel(ylabel)
-#        plt.show()
         
         
     def compute_regret(self):
@@ -71,6 +53,10 @@ class testOL(object):
         # loss by algorithm
         cumulative_algo_loss = 0
         algo_cumulative_loss=0
+        
+        # This only happens when all the experts doesn't include anhy exogenous inputs X 
+        if not self.X_test:
+            self.X_test=[None]*len(self.y_test)
         
         for x,y in zip(self.X_test,self.y_test):
             '''
@@ -107,6 +93,11 @@ class testOL(object):
         if right_expert < 0 :
             # model cumulative loss
             model_cumulative_loss = [0] * self.n_experts
+            
+            # This only happens when all the experts doesn't include anhy exogenous inputs X 
+            if not self.X_test:
+                self.X_test=[None]*len(self.y_test)
+                
             for x,y in zip(self.X_test,self.y_test):
                 self.online_learner.update_point(x,y)
                 model_current_loss = self.online_learner.get_current_loss()

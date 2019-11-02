@@ -6,7 +6,7 @@ Created on Mon Oct 14 13:39:59 2019
 @author: mingmingyu
 """
 import math
-from dataGen import dataARMA
+from depreciated.dataGen import *
 
 class trainOL(object):
     '''
@@ -26,14 +26,23 @@ class trainOL(object):
         if stage!=1 and stage!=2:
             print('Warning: stage needs to be either 1 or 2 for now')
             
-        if stage==1:        
-            inputs,outputs = dataARMA(coefficient,sigma,N*2,model=modelName).generate() #generate data
-                    
-            # Train the online learner using first half data
-            self.onlineLearner.train(outputs[:N]) 
-            # The rest of data is test data
-            self.inputs=inputs[N:]
+#        if stage==1:        
+#            inputs,outputs = dataARMA(coefficient,sigma,N*2,model=modelName).generate() #generate data
+#                    
+#            # Train the online learner using first half data
+#            self.onlineLearner.train(outputs[:N]) 
+#            # The rest of data is test data
+#            self.inputs=inputs[N:]
+#            self.outputs=outputs[N:]
+            
+            
+        if stage==1:                   
+            ar_coefs, ma_coefs=coefficient[:2],coefficient[2:]
+            outputs = ARMA_generator(ar_coefs, ma_coefs, sigma, N*2).generate() #generate data
+            self.onlineLearner.train(None,outputs[:N]) 
+            self.inputs=None
             self.outputs=outputs[N:]
+
             
         else:
             ar_inputs,ar_outputs = dataARMA(coefficient,sigma,N*2).generate()

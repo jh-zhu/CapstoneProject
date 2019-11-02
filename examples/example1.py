@@ -17,7 +17,7 @@ from utils.testOL import *
 # first we build an expert class that our algorithm wants to use
 # with model hyper-parameter
 # choose models from core.experts
-models = [ARIMA(2,1,1,365),AR(2)]
+models = [SARIMAX(2,0,2,0,0,0,1), AR(2)]
 
 # then we choose an online learning algorithm we want to use
 # Here, use follow the lead for example

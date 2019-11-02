@@ -67,7 +67,7 @@ class ARMA_generator(object):
         #np.random.seed(12345)
         ar = np.r_[1, [-i for i in self.ar_coefs]]  # add zero-lag and negate
         ma = np.r_[1, self.ma_coefs]                # add zero-lag
-        outputs = tsa.arma_generate_sample(ar, ma, self.N)
+        outputs = tsa.arma_generate_sample(ar, ma, self.N).tolist()
         return None,outputs
 
 
@@ -96,7 +96,7 @@ class linear_regression_generator(object):
             y = y + self.betas[i]*X[:,i]
         y = y + np.random.normal(0,self.sigma,self.N)
         
-        return X, y
+        return X.tolist(), y.tolist()
         
         
         
