@@ -1,0 +1,19 @@
+#check status
+Git status
+
+#add
+Git add <file>
+Git add -A #add all local changed files
+
+#commit
+Git commit -m “message”
+
+#push
+Git push
+
+#discard local changes to a file
+Git checkout — <file>
+
+#discard all local changes
+Git reset —hard
+ 
