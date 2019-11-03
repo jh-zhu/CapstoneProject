@@ -1,0 +1,39 @@
+## Login
+#Within the NYU network, or via VPN
+ssh mmy272@prince.hpc.nyu.edu
+
+#From off campus location
+Ssh mmy272@gw.hpc.nyu.edu
+Ssh prince.hpc.nyu.edu
+
+#######
+
+
+#File system, different storage
+Cd /scratch/mmy272/test
+Cd /home/mmy272
+Pwd #show current directory
+rm #remove a file
+ls #show all files
+Vim <file> #open file 
+:q #quit from vim
+:wq #save and quit from vim
+
+#see available modules
+Module avail
+
+##Transfer files. (Must set up tunnel before doing this)
+1. Ssh hpcgwtunnel (leave this bash open and open another bash)
+2A. Between your computer and the HPC
+A File:
+scp /Users/local/data.txt NYUNetID@prince:/scratch/NYUNetID/path/
+A Folder:
+scp -r /Users/local/path NYUNetID@prince:/scratch/NYUNetID/path/
+2B. Between the HPC and your computer
+A File:
+scp NYUNetID@prince:/scratch/NYUNetID/path/data.txt /Users/local/path/
+A Folder:
+scp -r NYUNetID@prince:/scratch/NYUNetID/path/data.txt /Users/local/path/ 
+
+#submit a job
+Sbatch myscript.s
