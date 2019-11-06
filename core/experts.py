@@ -21,6 +21,8 @@ class experts(object):
         self.name = None
         self.model = None
         self.fitted_model=None
+        self.endog = False     # if this expert is time dependent
+        self.adaptive = False  # if the model is adaptive or not
         
     def get_name(self):
         return self.name
@@ -74,8 +76,9 @@ class LinearRegression(experts):
         self.train(self.X_train, self.y_train)     
             
     def predict(self,x_test):
+        x_test = np.array([x_test])
         pred_y = self.fitted_model.predict(x_test)
-        return pred_y
+        return pred_y[0]
 
 class SVR(experts):
     '''
@@ -98,7 +101,7 @@ class SVR(experts):
         
     def train(self, X_train, y_train):
         self.X_train, self.y_train = X_train, y_train
-        self.fitted_model.fit(self.X_train, self.y_train)
+        self.fitted_model = self.model.fit(self.X_train, self.y_train)
        
     def train_update(self, new_x, new_y):
         if self.X_train:
@@ -110,8 +113,15 @@ class SVR(experts):
         self.train(self.X_train, self.y_train)             
         
     def predict(self,x_test):
+        '''
+        Predict a single point
+        input: a list of length p(# of features )
+        output: a float number: prediction
+        '''
+        # wrap a list into a 1*p matrix
+        x_test = np.array([x_test])
         pred_y = self.fitted_model.predict(x_test)
-        return pred_y
+        return pred_y[0]
         
 
 class SARIMAX(experts):
@@ -140,6 +150,9 @@ class SARIMAX(experts):
         self.name = 'SARIMA(({},{},{}),({},{},{},{}))'.format(self.p, self.d, self.q,
                                                               self.P, self.D, self.Q, self.m)
         
+        # adaptive is turned on for this model 
+        self.adaptive = True
+    
     def set_hyper_params(self, **params):
         self.model.update(**params)
      
@@ -172,8 +185,11 @@ class SARIMAX(experts):
         self.train(self.X_train, self.y_train)
    
     def predict(self,x_test):
-        pred_y = self.fitted_model.predict(1, exogenous=x_test)
-        return pred_y
+        train_data_length = len(self.X_train)
+        # wrap x_test
+        x_test = np.array([x_test])
+        pred_y = self.fitted_model.predict(start=train_data_length,end=None, exog=x_test)
+        return pred_y[0]
 
 
 class AR(experts):
@@ -181,21 +197,21 @@ class AR(experts):
     AR(p) model, first trained, and then used to make prediction
     '''
     def __init__(self,p):
+        super().__init__()
+        self.endog = True  
         self.p=p
-        self.train_data=None #training data
-        self.data=None #saved data used to make prediction
+        self.train_data = None #training data
+        self.memory_data = None #saved data used to make prediction
         self.name = 'AR{}'.format(self.p)
 
-<<<<<<< HEAD
+
     def train(self,X_train, train_data):
-=======
-    def train(self,X_train,train_data):
->>>>>>> 7f7f868bd395061685981cdd687a103afed6a2da
+
         '''
         Train the data using train_data
         '''
         self.train_data=train_data
-        self.data= self.train_data[-self.p:]
+        self.memory_data= self.train_data[-self.p:]
         initials=[0.1]*(self.p + 1) # p phi and 1 sigma
 
         self.coeff=fmin(self.MLE,initials)
@@ -229,62 +245,16 @@ class AR(experts):
         '''
         pass one point and make one prediction
         '''
+        
+        return np.flip(np.array(self.coeff[:-1])).dot(np.array(self.memory_data[-self.p:]).T)
         # It's a AR model, get the first argument (x)
-        new_x = x_test[0]
-
-        res = np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.p:]).T)
-        self.data.append(new_x)
-        self.data.pop(0)
-        return res
-
-
-class MA(experts):
-    '''
-    MA(q) model, first trained, and then used to make prediction
-    '''
-    def __init__(self,q):
-        self.q=q
-        self.train_data=None #training data
-        self.data=None #saved data used to make prediction
-        self.name = 'MA{}'.format(self.q)
-
-    def train(self,train_data):
+        
+    def update_data(self,x,y):
         '''
-        Train the data using train_data
+        update endog data
         '''
-        self.train_data= train_data
-        self.data=self.train_data[-self.q:]
-        initials=[0.1]*(self.q + 1) # p phi and 1 sigma
+        self.memory_data.append(y)
+        self.memory_data.pop(0)
+        return
 
-        self.coeff=fmin(self.MLE,initials)
-
-    def MLE(self,initial):
-        '''
-        MLE used to solve the coefficients of MA(q) model
-        '''
-
-        Theta,Sigma=np.array(initial[:-1]),initial[-1]
-        N = len(self.train_data)
-        Z=[0]*N
-        Z[0]=0
-        Summation = 0
-        for i in range(self.q,N):
-            'X is from data initialization'
-            Z[i]=self.train_data[i]-Theta.dot(np.array(Z[i-self.q:i]).T)
-            Summation += -1*((Z[i]**2)/(2*Sigma**2))
-        res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
-        return -res
-
-    def predict(self,x_test):
-        '''
-        pass one point and make one prediction
-        '''
-
-        # It's a MA model, get the second argument (z)
-        new_z = x_test[1]
-
-        res=np.flip(np.array(self.coeff[:-1])).dot(np.array(self.data[-self.q:]).T)
-        self.data.append(new_z)
-        self.data.pop(0)
-        return res
 

@@ -17,13 +17,13 @@ from utils.testOL import *
 # first we build an expert class that our algorithm wants to use
 # with model hyper-parameter
 # choose models from core.experts
-models = [SARIMAX(2,0,2,0,0,0,1), AR(2)]
+models = [SARIMAX(1,0,1,0,0,0,12)]#SVR('rbf',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(),AR(2)]
 
 # then we choose an online learning algorithm we want to use
 # Here, use follow the lead for example
 # with hyper-parameter redis of our algorithm
 redis = 0.5
-learner = follow_the_lead(models,redis = redis)
+learner = exponential_weighted_average(models,0.05,redis = redis)
 
 # then we obtain our training and testing data
 # normally we will import read fininal data here
@@ -51,6 +51,23 @@ tester = testOL(learner,X_test,y_test)
 # Then we can use tester to plot weight, compute regret and ...
 # In general the tester should be able to give us some feedback of 
 # how our algorithm is doing on the test data set
+
+import matplotlib.pyplot as plt
+# weight plot
+W = tester.compute_weight()
+legends = [model.get_name() for model in learner.models]
+
+fig = plt.figure(figsize = (12,4))
+for w in W:
+    _ = plt.plot(w)
+plt.show()
+
+
+
+
+
+
+
 
 
 

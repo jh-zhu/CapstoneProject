@@ -48,8 +48,8 @@ class learner(object):
         '''
         Train all the experts using training data
         '''
-        for mod in self.models:
-            mod.train(X_train, y_train)
+        for model in self.models:
+            model.train(X_train, y_train)
     
     def get_weight(self):
         '''
@@ -93,7 +93,20 @@ class learner(object):
         self.current_loss = losses
         
         self.update_weight(losses)
-        self.update_experts(x,y)
+        
+        '''
+        For models that are time dependent,  i.e. it requires previous data to make prediction
+        like AR model, this function call is to update data that holds in memory
+        '''
+        self.update_expert_data(x,y)
+        
+        '''
+        This part is to update model parameter. To be implemented in the future
+        '''
+        
+        self.update_expert_parameter(x,y)
+        
+        
         
     def update_weight(self,losses):
         '''
@@ -101,9 +114,20 @@ class learner(object):
         '''
         pass
     
-    def update_experts(self,x,y):
-        for mod in self.models:
-            mod.train_update(x,y)
+    
+    def update_expert_data(self,x,y):
+        '''
+        update the data held in models that requires endog info (time dependent)
+        '''
+        for model in self.models:
+            if model.endog:
+                model.update_data(x,y)
+        
+    def update_expert_parameter(self,x,y):
+        for model in self.models:
+            if model.adaptive:
+                model.train_update(x,y)
+    
     
     def vote(self,y_predicts):
         '''Majority vote. Return the prediction given by higest vot'''
