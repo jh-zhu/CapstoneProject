@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 ##SBATCH --nodes=20
-#SBATCH --nodes=20
+#SBATCH —N 2
+#SBATCH -n 2
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=20
 #SBATCH --time=1:00:00
@@ -13,6 +14,8 @@
 
 module purge
 module load python3/intel/3.5.3
+cd /scratch/mmy272/test
 
-cd /scratch/mmy272/CapstoneProject/ 
-cat plot.py | srun python3
+srun -N 1 -n 1 python3 hello1.py 0 &
+srun -N 1 -n 1 python3 hello2.py 1 &
+wait
