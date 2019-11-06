@@ -35,15 +35,7 @@ class learner(object):
         # reset the weight of online learning algorithm
         self.W = [1] * self.n
     
-    '''Old train method for AR, MA model'''    
-#    def train(self, train_data):
-#        '''
-#        Train all the experts using training data
-#        input: train_data = training data
-#        '''
-#        for mod in self.models:
-#            mod.train(train_data)
-        
+
     def train(self, X_train, y_train):
         '''
         Train all the experts using training data

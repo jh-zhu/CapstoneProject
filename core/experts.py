@@ -245,7 +245,6 @@ class AR(experts):
         '''
         pass one point and make one prediction
         '''
-        
         return np.flip(np.array(self.coeff[:-1])).dot(np.array(self.memory_data[-self.p:]).T)
         # It's a AR model, get the first argument (x)
         
