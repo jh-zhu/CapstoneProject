@@ -20,6 +20,12 @@ class experts_create(object):
         self.y_train = y_train
         self.models = None
         self.model_names = None
+    
+    def get_models(self):
+        return self.models
+    
+    def get_modelNames(self):
+        return self.models_names
         
         
     def RandomCreate(self, **kwargs):
@@ -42,49 +48,48 @@ class experts_create(object):
     def GridCreate(self, **kwargs):
         grid_range = {k:v for k, v in kwargs.items()}
 
-'''
-'''AR'''  
-ps = 
-     
-'''SARIMAX''' 
-ps = np.arange(0,)
-ds = 
-qs = 
-Ps = 
-Ds = 
-Qs = 
-ms =
 
-'''SVR'''
-kernels =
-gammas = 
-Cs = 
-epsilons =       
-        
- '''Random Forest''' 
- # Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
-# Number of features to consider at every split
-max_features = ['auto', 'sqrt']
-# Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
-max_depth.append(None)
-# Minimum number of samples required to split a node
-min_samples_split = [2, 5, 10]
-# Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2, 4]
-# Method of selecting samples for training each tree
-bootstrap = [True, False]
-#First create the base model to tune
-rf = RandomForestRegressor(random_state = 42) 
-
- 
-hyper_opt = Hyperparams_Optimization(rf, X_train, y_train)    
-hyper_opt.RandomSearch(rf, n_estimators=n_estimators, max_features=max_features, max_depth = max_depth,
-             min_samples_split=min_samples_split,min_samples_leaf=min_samples_leaf,bootstrap=bootstrap)
-'''             
-             
-             
+#'''AR'''  
+#ps = 
+#     
+#'''SARIMAX''' 
+#ps = np.arange(0,)
+#ds = 
+#qs = 
+#Ps = 
+#Ds = 
+#Qs = 
+#ms =
+#
+#'''SVR'''
+#kernels =
+#gammas = 
+#Cs = 
+#epsilons =       
+#        
+# '''Random Forest''' 
+# # Number of trees in random forest
+#n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+## Number of features to consider at every split
+#max_features = ['auto', 'sqrt']
+## Maximum number of levels in tree
+#max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+#max_depth.append(None)
+## Minimum number of samples required to split a node
+#min_samples_split = [2, 5, 10]
+## Minimum number of samples required at each leaf node
+#min_samples_leaf = [1, 2, 4]
+## Method of selecting samples for training each tree
+#bootstrap = [True, False]
+##First create the base model to tune
+#rf = RandomForestRegressor(random_state = 42) 
+#
+#  
+#hyper_opt.RandomSearch(rf, n_estimators=n_estimators, max_features=max_features, max_depth = max_depth,
+#             min_samples_split=min_samples_split,min_samples_leaf=min_samples_leaf,bootstrap=bootstrap)
+#             
+#             
+#             
              
              
              
