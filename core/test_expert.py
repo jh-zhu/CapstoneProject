@@ -5,7 +5,9 @@ Created on Mon Oct 28 01:42:35 2019
 
 @author: yitongcai
 """
-from core.experts import *
+
+from experts import *
+from utils.data_generator import *
 import numpy as np
 
 '''
@@ -18,8 +20,14 @@ class test_expert(object):
     
     def  __init__(self, expert, hyperparams):
         self.expert = expert
-        self.hyperparams = [int(p) if p.isdigit() else p for p in hyperparams.split(",") ]  #[hyper1,hyper2,hyper3,...]
+        def is_number(s):
+            try:
+                float(s)
+                return True
+            except ValueError:
+                return False
         
+        self.hyperparams = [float(p) if is_number(p) else p for p in hyperparams.split(",") ]  #[hyper1,hyper2,hyper3,...]
         if expert == "AR":
             self.model = AR(self.hyperparams[0])
         elif expert == "LR":
@@ -55,7 +63,7 @@ class test_expert(object):
 import sys
 expert, hyper = sys.argv[1], sys.argv[2]   
 test_expert = test_expert(expert, hyper)
-test_expert.train_test()
+print(test_expert.train_test())
 
         
     
