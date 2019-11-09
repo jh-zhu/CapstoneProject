@@ -23,7 +23,7 @@ Vim <file> #open file
 Module avail
 
 ##Transfer files. (Must set up tunnel before doing this)
-1. Ssh hpcgwtunnel (leave this bash open and open another bash)
+1. Open a new terminal, and ssh hpcgwtunnel (leave this bash open and open another bash)
 2A. Between your computer and the HPC
 A File:
 scp /Users/local/data.txt NYUNetID@prince:/scratch/NYUNetID/path/
@@ -37,3 +37,16 @@ scp -r NYUNetID@prince:/scratch/NYUNetID/path/data.txt /Users/local/path/
 
 #submit a job
 Sbatch myscript.s
+
+#Add python library/package
+export PYTHONPATH="/scratch/mmy272/test/CapstoneProject"
+
+#install package
+pip install --user statsmodels
+
+#Check system path
+Module load python3/intel/3.7.3
+python -c "import sys;print(sys.path)"
+
+#run python
+python CapstoneProject/core/test_expert.py SVR rbf,0.1,1

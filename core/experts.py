@@ -5,7 +5,7 @@ Created on Fri Oct 25 12:27:17 2019
 
 @author: yitongcai,Ming,Jiahao
 """
-import statsmodels.tsa.statespace.sarimax as sarimax
+#import statsmodels.tsa.statespace.sarimax as sarimax
 import numpy as np
 from scipy.optimize import fmin
 import math
@@ -124,74 +124,76 @@ class SVR(experts):
         return pred_y[0]
         
 
-class SARIMAX(experts):
-    '''
-    SARIMAX((p,d,q), (P,D,Q,m)) model is ARIMA + Seasonality + Exogeneous X
-    SARIMAX((p,d,q), (0,0,0,1)) is ARIMAX(p,d,q)
-    '''
-    def __init__(self,p,d,q,P,D,Q,m):
-        '''
-        :param p: order of AR model
-        :param d: order of differece
-        :param q: order of MA model
-        :param P: order of AR model of seasonality
-        :param D: order of differece of seasonality
-        :param Q: order of MA model of seasonality
-        :param m: number of periods in each season ex. daily:365 / quarter:4 / month:12 / annual:1
-        '''
-        super().__init__()
-        self.p=p 
-        self.d=d
-        self.q=q
-        self.P=P 
-        self.D=D
-        self.Q=Q
-        self.m=m
-        self.name = 'SARIMA(({},{},{}),({},{},{},{}))'.format(self.p, self.d, self.q,
-                                                              self.P, self.D, self.Q, self.m)
-        
-        # adaptive is turned on for this model 
-        self.adaptive = True
-    
-    def set_hyper_params(self, **params):
-        self.model.update(**params)
-     
-    def train(self, X_train, y_train):
-        self.X_train, self.y_train = X_train, y_train
-        self.model = sarimax.SARIMAX(endog=self.y_train, exog=self.X_train, order=(self.p, self.d, self.q),
-                                     seasonal_order=(self.P, self.D, self.Q, self.m),trend='c')
-        self.fitted_model = self.model.fit(disp=0)
-        self.coeff = self.fitted_model.params[1:-1]
-        
-    def train_update(self, new_x, new_y):
-        # decide if new_x is the first input for X_train 
-        if self.X_train:
-            self.X_train.pop(0)
-            self.X_train.append(new_x)
-        else:
-            if new_x:
-                self.X_train = [new_x]
-            # This is for SARIMA case without exogenous input X, in this case, new_x is None
-            else:
-                self.X_train = new_x
-                
-         # decide if new_y is the first input for y_train
-        if self.y_train is not None:
-            self.y_train.pop(0)
-            self.y_train.append(new_y)
-        else:
-            self.y_train = [new_y]
-        # re-train the whole new input X and y (problem: slow)    
-        self.train(self.X_train, self.y_train)
-   
-    def predict(self,x_test):
-        train_data_length = len(self.X_train)
-        # wrap x_test
-        x_test = np.array([x_test])
-        pred_y = self.fitted_model.predict(start=train_data_length,end=None, exog=x_test)
-        return pred_y[0]
-
-
+# =============================================================================
+# class SARIMAX(experts):
+#     '''
+#     SARIMAX((p,d,q), (P,D,Q,m)) model is ARIMA + Seasonality + Exogeneous X
+#     SARIMAX((p,d,q), (0,0,0,1)) is ARIMAX(p,d,q)
+#     '''
+#     def __init__(self,p,d,q,P,D,Q,m):
+#         '''
+#         :param p: order of AR model
+#         :param d: order of differece
+#         :param q: order of MA model
+#         :param P: order of AR model of seasonality
+#         :param D: order of differece of seasonality
+#         :param Q: order of MA model of seasonality
+#         :param m: number of periods in each season ex. daily:365 / quarter:4 / month:12 / annual:1
+#         '''
+#         super().__init__()
+#         self.p=p 
+#         self.d=d
+#         self.q=q
+#         self.P=P 
+#         self.D=D
+#         self.Q=Q
+#         self.m=m
+#         self.name = 'SARIMA(({},{},{}),({},{},{},{}))'.format(self.p, self.d, self.q,
+#                                                               self.P, self.D, self.Q, self.m)
+#         
+#         # adaptive is turned on for this model 
+#         self.adaptive = True
+#     
+#     def set_hyper_params(self, **params):
+#         self.model.update(**params)
+#      
+#     def train(self, X_train, y_train):
+#         self.X_train, self.y_train = X_train, y_train
+#         self.model = sarimax.SARIMAX(endog=self.y_train, exog=self.X_train, order=(self.p, self.d, self.q),
+#                                      seasonal_order=(self.P, self.D, self.Q, self.m),trend='c')
+#         self.fitted_model = self.model.fit(disp=0)
+#         self.coeff = self.fitted_model.params[1:-1]
+#         
+#     def train_update(self, new_x, new_y):
+#         # decide if new_x is the first input for X_train 
+#         if self.X_train:
+#             self.X_train.pop(0)
+#             self.X_train.append(new_x)
+#         else:
+#             if new_x:
+#                 self.X_train = [new_x]
+#             # This is for SARIMA case without exogenous input X, in this case, new_x is None
+#             else:
+#                 self.X_train = new_x
+#                 
+#          # decide if new_y is the first input for y_train
+#         if self.y_train is not None:
+#             self.y_train.pop(0)
+#             self.y_train.append(new_y)
+#         else:
+#             self.y_train = [new_y]
+#         # re-train the whole new input X and y (problem: slow)    
+#         self.train(self.X_train, self.y_train)
+#    
+#     def predict(self,x_test):
+#         train_data_length = len(self.X_train)
+#         # wrap x_test
+#         x_test = np.array([x_test])
+#         pred_y = self.fitted_model.predict(start=train_data_length,end=None, exog=x_test)
+#         return pred_y[0]
+# 
+# 
+# =============================================================================
 class AR(experts):
     '''
     AR(p) model, first trained, and then used to make prediction
