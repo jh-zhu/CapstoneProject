@@ -53,17 +53,27 @@ class test_expert(object):
         X_test,y_test = generator.generate()
         self.model.train(X_train,y_train)
         
-        losses=[]
+        preds, losses=[], []
         for x,y in zip(X_test,y_test):
             y_pred = self.model.predict(x)
             MSE = abs(y - y_pred)**2
             losses.append(MSE)
-        return losses
+            preds.append(y_pred)
+        return (losses, preds)
             
 import sys
 expert, hyper = sys.argv[1], sys.argv[2]   
 test_expert = test_expert(expert, hyper)
-print(test_expert.train_test())
+losses, preds = test_expert.train_test()
+
+import csv 
+header = [expert+"_"+hyper+'_Prediction', expert+"_"+hyper+'_Losses']
+with open("/Users/yitongcai/Downloads/"+expert+"_"+hyper+".csv", 'w', newline='') as f:
+    writer = csv.writer(f, delimiter=',')
+    writer.writerow(header) 
+    for p,l in zip(preds, losses):
+        writer.writerow([p,l])
+
 
         
     
