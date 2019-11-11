@@ -3,96 +3,93 @@
 """
 @author: Jiahao, Yitong
 """
-from core.online_learner import *
-from depreciated.ARMA import *
-from depreciated.trainOL import *
-from utils.testOL import * 
-from utils.data_generator import *
-from core.experts import *
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+
 #src_path = '/Users/Jiahao/Documents/classes/capstone/online_learning/'
 #src_path = '/Users/yitongcai/Coding/CapstoneProject/'
 #src_path='/scratch/mmy272/test/CapstoneProject/'
 #os.chdir(src_path)
 
-class summary_plots(object):
-    def __init__(self, tester, y_test, sigmas, model_names):
-        self.tester = tester  
-        self.y_test = y_test
-        self.sigmas = sigmas
-        self.model_names = model_names
-        
-        
-    def plot_weight(self):
-        '''
-        plot weight for all the experts over data inputs
-        '''
-        weights = self.tester.compute_weight()      
-        experts = self.tester.online_learner.models
-        names = []
-        for expert in experts:
-            names.append(expert.get_name())       
-        for weight in weights:
-            plt.plot(weight[:len(self.y_test)])
-            
-#        title  = "weight_{}_stage{}_{}_{}".format(self.learner_name, stage, redis, sigma)
-#        title  = "stability : {}".format( redis)
-        title=''        
-        xlabel = "data point"
-        ylabel = "weight"
-        plt.legend(names)
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.show()
-        
-        
-    def plot_regret(self):
-        '''
-        plot regret over noise 
-        '''
-        regrets = []
-        for sigma in self.sigmas:
-            regret = self.tester.compute_regret()
-            regrets.append(regret)
- 
-#        title  = "regret_{}_stage{}_{}_{}".format(self.learner_name, stage, redis, sigma)
-        title = " "
-        xlabel = 'sigma'
-        ylabel = 'regret'
-        plt.scatter(self.sigmas,regrets)
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.show()
-        
 
-    def plot_choose_right_expert(self):
-        '''
-        plot number of time choosing right expert over noise 
-        '''
-        percents, indexes = [], []       
-        for sigma in self.sigmas:
-            index, percent = self.tester.compute_choose_right_expert()
-            percents.append(percent)
-            indexes.append(index)
+    
+def plot_weight(W,model_names = None,title=None,size = (12,4),output_path = None):
+    '''
+    plot weight weight change of all experts 
+    
+    Input: W: weight matrix, columns are time steps, rows are experts
+           model_names: a list of model names
+           size: plot size 
+           output_path: string, a path to output file if want plot to be saved
+           
+    '''
+    fig = plt.figure(figsize = size)
+    for weight in W:
+        _ = plt.plot(weight)
         
-#        title  = "best expert_{}_stage{}_{}".format(self.learner_name, stage, redis)
-        title = " "
-        xlabel = 'sigma'
-        ylabel = 'percent'
- 
-        plt.plot(self.sigmas, percents)
-        for i in range(len(self.sigmas)):
-            plt.annotate("({},{})".format(self.model_names[indexes[i]],percents[i]), 
-                                          xy=(self.sigmas[i],percents[i]), xytext=(-20, 10), 
-                                          textcoords='offset points')
+    plt.xlabel('time')
+    plt.ylabel('weights')
+    
+    if model_names is not None:
+        plt.legend(model_names)
+    if title is not None:
         plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
+    
+    #plt.show()
+    if output_path is not None:
+        plt.savefig(output_path)
+    else:
+        plt.show()
+        
+        
+def plot_regret(sigmas,regrets,title=None,size = (12,4),output_path = None):
+    '''
+    Plot regret over noise 
+    
+    Input: sigmas: a list of different noises
+           regrets:  regret onder different noise level
+           output_path: string, a path to output file if want plot to be saved
+    
+    '''
+    fig = plt.figure(figsize = size)
+    _ = plt.plot(sigmas,regrets)
+        
+    plt.xlabel('sigma')
+    plt.ylabel('regrets')
+    
+    if title is not None:
+        plt.title(title)
+    
+    #plt.show()
+    if output_path is not None:
+        plt.savefig(output_path)
+    else:
+        plt.show()
+
+def plot_choose_right_expert(sigmas,percents,title=None,size = (12,4),output_path = None):
+    '''
+    Plot percent of time choosing right experts over noise 
+    
+    Input: sigmas: a list of different noises
+           regrets:  regret onder different noise level
+           size: plot size 
+           output_path: string, a path to output file if want plot to be saved
+    '''
+    
+    fig = plt.figure(figsize = size)
+    _ = plt.plot(sigmas,percents)
+        
+    plt.xlabel('sigma')
+    plt.ylabel('percent of time choosing right experts')
+    
+    if title is not None:
+        plt.title(title)
+    
+    #plt.show()
+    if output_path is not None:
+        plt.savefig(output_path)
+    else:
         plt.show()
         
 
