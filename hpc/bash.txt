@@ -38,6 +38,12 @@ scp -r NYUNetID@prince:/scratch/NYUNetID/path/data.txt /Users/local/path/
 #submit a job
 Sbatch myscript.s
 
+#cancel a job
+scancel jobID
+
+#monitor job
+squeue -u mmy272
+
 #Add python library/package
 export PYTHONPATH="/scratch/mmy272/test/CapstoneProject"
 
@@ -50,3 +56,6 @@ python -c "import sys;print(sys.path)"
 
 #run python
 python CapstoneProject/core/test_expert.py SVR rbf,0.1,1
+
+# view csv file
+less -S SVR_linear,0.01,0.5.csv
