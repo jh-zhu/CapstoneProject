@@ -42,7 +42,7 @@ class test_expert(object):
             raise Exception('{} has not been implemented yet'.format(self.expert))
         
         if train_data is not None:
-            df_train = pd.read_csv(train_data)
+            df_train = pd.read_csv(train_data,header=False)
             self.y_train = np.array(df_train.iloc[:,0])
             self.X_train = np.array(df_train.iloc[:,1:])
             
@@ -51,7 +51,7 @@ class test_expert(object):
             X_train,y_train = self.generate_data()
         
         if test_data is not None:
-            df_test = pd.read_csv(test_data)
+            df_test = pd.read_csv(test_data,header=False)
             self.y_test = np.array(df_test.iloc[:,0])
             self.X_test = np.array(df_test.iloc[:,1:])
             

@@ -15,11 +15,12 @@ expert losses and predictions using testing data.
 
 """
 
-source_path = '/Users/Jiahao/Downloads/output/'
+source_path = '/Users/mingmingyu/Downloads/output/'
 
 
 # create a online learner calculator
-redis = 0.5
+
+redis = 0.1
 learner = FTL_hpc(source_path,redis = redis)
 
 
@@ -40,7 +41,7 @@ R = learner.compute_algo_regret(y_test)
 # for example, plot weight change over time
 
 names = learner.model_names
-plot.plot_weight(np.array(W).T,names)
+plot.plot_weight(W.T)#,names)
 
 
 

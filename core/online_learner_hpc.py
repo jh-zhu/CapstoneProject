@@ -50,36 +50,38 @@ class learner_hpc(object):
     def compute_weight_change(self):
         pass
     
-    def redist_loss(self,raw_loss):
+    def redist_loss(self,raw_losses):
         '''
         Redistribute loss accured this round
         Input: raw losses accured this round
         Output: redistributed losses
         '''
         
-        n = len(raw_loss)
-        losses = [0] * n
-        for i,r_l in enumerate(raw_loss):
-            redist_loss = r_l * self.redis # loss to redistribute
-            remain_loss = r_l - redist_loss # loss remained to that expert 
-            redist_loss_each = redist_loss / n
-            for j in range(n):
-                if j==i:
-                    losses[j] += remain_loss
-                    losses[j] += redist_loss_each
-                else:
-                    losses[j] += redist_loss_each
+        # number of experts 
+        n = len(raw_losses)
         
-        return losses
+        # losses remained for each expert
+        losses_remain = (1 - self.redis) * raw_losses
+        
+        # the weight to redistribute
+        losses_redis = raw_losses - losses_remain
+        
+        # calculate losses after redistribution adjustment
+        losses_adjusted = losses_remain + float(1/(n-1))*sum(losses_redis) - float(1/(n-1)) * losses_redis
+        return losses_adjusted
+        
+        
+        
+
 
     def normalize_weight(self,W):
         '''
         Normalize the weight to sum to 1
+        
+        input: W np-array
         '''
         s = sum(W)
-        for i,w in enumerate(W):
-            W[i] = w/s
-        return W
+        return W/s
         
 
 
@@ -91,6 +93,10 @@ class EWA_hpc(learner_hpc):
         self.redis = redis
     
     def compute_weight_change(self):
+        
+        losses = np.array(self.df_loss) 
+        
+        
         n = len(self.model_names)
         # latest weight
         w = [1/n]*n
@@ -101,7 +107,7 @@ class EWA_hpc(learner_hpc):
         for i,row in self.df_loss.iterrows():
             
             # losses at this round
-            losses = list(row)
+            losses = np.array(row)
             # if redist
             if self.redis > 0:
                 losses = self.redist_loss(losses)
@@ -124,36 +130,40 @@ class FTL_hpc(learner_hpc):
         self.redis = redis
     
     def compute_weight_change(self):
-        n = len(self.model_names)
-        # latest weight, randomly pick 1 expert at the beginning
-        w = [0]*n
-        w[np.random.randint(0,n,1)[0]] = 1
-        # weight matrix W 
-        W = [w]
-        # cumulative loss
-        cumulative_loss  = [0] *n
         
-        # for each row (losses at that time step)
-        for i,row in self.df_loss.iterrows():
+        # row time, column experts
+        losses = np.array(self.df_loss)
+        
+        # number of experts
+        n = len(self.model_names)
+        # number of time steps
+        T = len(losses)
+        
+        # weight matrix W 
+        W = []
+        
+        # cumulative loss
+        cumulative_loss  = np.zeros(n)
+        
+        for i,loss in enumerate(losses):
             
-            # losses at this round
-            losses = list(row)
-            # if redist
+            # redist loss
             if self.redis > 0:
-                losses = self.redist_loss(losses)
+                l = self.redist_loss(loss)
+            else:
+                l = loss
             
-            # add losses to cumulative losses
-            for j,c_loss in enumerate(cumulative_loss):
-                cumulative_loss[j] = c_loss + losses[j]
-                
-            # update weight this round
-            w = [0]*n
+            # add to cumulative loss
+            cumulative_loss  = cumulative_loss + l
+            # best expert this time
             val, idx = min((val, idx) for (idx, val) in enumerate(cumulative_loss))
-            w[idx] = 1
             
-            # add to W matrix
+            w = np.zeros(n)
+            w[idx] = 1
             W.append(w)
-        return W
+        
+        return np.array(W)
+        
                 
                 
         
