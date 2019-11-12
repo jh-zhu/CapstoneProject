@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-from core.online_learner_calculator import *
-from core.utils import plot
+from core.online_learner_hpc import *
+from utils import plot
+import numpy as np
 
 """
 This is an example to show how do we 
@@ -14,35 +15,32 @@ expert losses and predictions using testing data.
 
 """
 
-loss_file_path = '/Users/Jiahao/Downloads/losses.csv'
-prediction_file_path = '/Users/Jiahao/Downloads/predictions.csv'
+source_path = '/Users/Jiahao/Downloads/output/'
 
 
 # create a online learner calculator
 redis = 0.5
-calculator = EWA_calculator(0.05,redis = redis,loss_file_path,prediction_file_path)
+learner = FTL_hpc(source_path,redis = redis)
+
 
 # get expert weights change matrix
-W = calculator.compute_weight_change()
+W = learner.compute_weight_change()
 
 # get algo prediction over time 
-P = calculator.compute_algo_prediction()
+P = learner.compute_algo_prediction()
 
 # get algo loss over time 
-L = calculator.compute_algo_loss(y_test)
+L = learner.compute_algo_loss(y_test)
 
 # get algo 
-R = calculator.compute_algo_regret(y_test)
-
-# get algo percent of time choosing right expert
-P = calculator.compute_algo_percent()
+R = learner.compute_algo_regret(y_test)
 
 
 # Then we can use our plot utilities
 # for example, plot weight change over time
 
-names = calculator.get_expert_names()
-plot.plot_weight(W,model_names,title,size,output_path)
+names = learner.model_names
+plot.plot_weight(np.array(W).T,names)
 
 
 
