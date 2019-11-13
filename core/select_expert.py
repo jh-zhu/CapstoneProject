@@ -38,6 +38,10 @@ class test_expert(object):
             self.model = LinearRegression(*self.hyperparams)
         elif expert == "SVR":
             self.model = SVR(*self.hyperparams) 
+        elif expert == "RF":
+            self.model = RandomForest(*self.hyperparams) 
+        elif expert == "XGBoost":
+            self.model = XGBoost(*self.hyperparams) 
         else:
             raise Exception('{} has not been implemented yet'.format(self.expert))
         
