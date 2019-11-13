@@ -11,6 +11,8 @@ from scipy.optimize import fmin
 import math
 import sklearn.linear_model as linear
 import sklearn.svm as svm
+from sklearn.ensemble import RandomForestRegressor
+import xgboost as xgb
 
 
 class experts(object):
@@ -87,8 +89,10 @@ class MLmodels(experts):
 class LinearRegression(MLmodels):
     def __init__(self, alpha, l1_ratio):
         '''
-        :param alpha: Constant that multiplies the penalty terms [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
-        :param l1_ratio: np.arange(0.0, 1.0, 0.1)
+        :param alpha: Constant that multiplies the penalty terms 
+                     [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+        :param l1_ratio: 
+                        np.arange(0.0, 1.0, 0.1)
         '''
         super().__init__()
         self.alpha = alpha
@@ -117,6 +121,65 @@ class SVR(MLmodels):
         self.model = svm.SVR(kernel=self.kernel, C=self.C, gamma=self.gamma, epsilon=self.epsilon)
 
 
+class RandomForest(MLmodels):
+    def __init__(self, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features):
+        '''
+        :param n_estimators: number of trees 
+                            [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+        :param max_depth: maximum number of levels in tree
+                         [int(x) for x in np.linspace(10, 110, num = 11)]
+        :param min_samples_split: minimum number of samples required to split a node
+                                  [2, 5, 10]
+        :param min_samples_leaf: minimum number of samples required at each leaf node
+                                 [1, 2, 4]
+        :param max_features: number of features to consider at every split
+                            ['auto', 'sqrt']
+        '''
+        
+        super().__init__()
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
+        self.max_features = max_features
+        self.model = RandomForestRegressor(n_estimators=self.n_estimators, max_depth=self.max_depth,
+                                           min_samples_split=self.min_samples_split, 
+                                           min_samples_leaf=self.min_samples_leaf, 
+                                           max_features=self.max_features) 
+        
+        
+class XGBoost(MLmodels):
+    def __init__(self, max_depth, learning_rate, n_estimators, subsample, colsample_bytree, 
+                 gamma, alpha, lambd):
+        '''
+        :param learning_rate: step size shrinkage used to prevent overfitting
+                              Range is [0,1]
+        :param max_depth: determines how deeply each tree is allowed to grow during any boosting round
+        :param subsample: percentage of samples used per tree. Low value can lead to underfitting
+        :param colsample_bytree: percentage of features used per tree. High value can lead to overfitting
+        :param n_estimators: number of trees you want to build
+        :param gamma: whether a given node will split based on the expected reduction in loss after the split.
+                      A higher value leads to fewer splits.
+        :param alpha: L1 regularization on leaf weights
+        :param lambda: L2 regularization on leaf weights 
+        '''
+        
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.max_depth = max_depth 
+        self.n_estimators = n_estimators
+        self.subsample = subsample
+        self.colsample_bytree = colsample_bytree
+        self.gamma = gamma
+        self.alpha = alpha
+        self.lambd = lambd
+        self.model = xgb.XGBRegressor(objective ='reg:squarederror', booster='gbtree', tree_method='auto',
+                                      max_depth=self.max_depth, learning_rate=self.learning_rate, 
+                                      n_estimators=self.n_estimators, subsample=self.subsample,
+                                      colsample_bytree=self.colsample_bytree, gamma=self.gamma,
+                                      eg_alpha=self.alpha, reg_lambda=self.lambd)
+        
+        
 class AR(experts):
     '''
     AR(p) model, first trained, and then used to make prediction
