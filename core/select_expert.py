@@ -35,7 +35,7 @@ class test_expert(object):
         if expert == "AR":
             self.model = AR(self.hyperparams[0])
         elif expert == "LR":
-            self.model = LinearRegression()
+            self.model = LinearRegression(*self.hyperparams)
         elif expert == "SVR":
             self.model = SVR(*self.hyperparams) 
         else:

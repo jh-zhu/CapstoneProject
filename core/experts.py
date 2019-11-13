@@ -54,54 +54,14 @@ class experts(object):
         :return: prediction y
         '''
         pass
-        
-class LinearRegression(experts):
+    
+class MLmodels(experts):
     def __init__(self):
         super().__init__()
-        self.name = 'LinearReg'
-        self.model = linear.LinearRegression()
-     
+        
     def train(self, X_train, y_train):
         self.X_train, self.y_train = X_train, y_train
         self.fitted_model =  self.model.fit(self.X_train, self.y_train)     
-        self.coeff = self.fitted_model.coef_
-        
-    def train_update(self, new_x, new_y):
-        if self.X_train:
-            self.X_train.pop(0)
-            self.X_train.append(new_x)
-        if self.y_train:
-            self.y_train.pop(0)
-            self.y_train.append(new_y)
-        self.train(self.X_train, self.y_train)     
-            
-    def predict(self,x_test):
-        x_test = np.array([x_test])
-        pred_y = self.fitted_model.predict(x_test)
-        return pred_y[0]
-
-class SVR(experts):
-    '''
-    degree for 'poly'(default=3)
-    epsilon=0.1, verbose=False'''
-    def __init__(self, kernel, gamma, C, epsilon=0.1):
-        '''
-        :param kernel: ’rbf’,‘linear’, ‘poly’, ‘sigmoid’, ‘precomputed’ 
-        :param gamma: kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’
-                      measure how exactly fit the training data set (higher means more exact)
-        :param C: penalty parameter C of the error term
-        '''
-        super().__init__()
-        self.kernel = kernel
-        self.gamma = gamma
-        self.C = C
-        self.epsilon = epsilon
-        self.name = 'SVR_{}'.format(self.kernel)
-        self.model = svm.SVR(kernel=self.kernel, C=self.C, gamma=self.gamma, epsilon=self.epsilon)
-        
-    def train(self, X_train, y_train):
-        self.X_train, self.y_train = X_train, y_train
-        self.fitted_model = self.model.fit(self.X_train, self.y_train)
        
     def train_update(self, new_x, new_y):
         if self.X_train:
@@ -122,7 +82,105 @@ class SVR(experts):
         x_test = np.array([x_test])
         pred_y = self.fitted_model.predict(x_test)
         return pred_y[0]
+    
         
+class LinearRegression(MLmodels):
+    def __init__(self, alpha, l1_ratio):
+        '''
+        :param alpha: Constant that multiplies the penalty terms [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+        :param l1_ratio: np.arange(0.0, 1.0, 0.1)
+        '''
+        super().__init__()
+        self.alpha = alpha
+        self.l1_ratio = l1_ratio
+        self.name = 'LinearRegression'
+        self.model = linear.ElasticNet(alpha=self.alpha, l1_ratio=self.l1_ratio, random_state=0)
+     
+
+class SVR(MLmodels):
+    '''
+    degree for 'poly'(default=3)
+    epsilon=0.1, verbose=False'''
+    def __init__(self, kernel, gamma, C, epsilon=0.1):
+        '''
+        :param kernel: ’rbf’,‘linear’, ‘poly’, ‘sigmoid’, ‘precomputed’ 
+        :param gamma: kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’
+                      measure how exactly fit the training data set (higher means more exact)
+        :param C: penalty parameter C of the error term
+        '''
+        super().__init__()
+        self.kernel = kernel
+        self.gamma = gamma
+        self.C = C
+        self.epsilon = epsilon
+        self.name = 'SVR_{}'.format(self.kernel)
+        self.model = svm.SVR(kernel=self.kernel, C=self.C, gamma=self.gamma, epsilon=self.epsilon)
+
+
+class AR(experts):
+    '''
+    AR(p) model, first trained, and then used to make prediction
+    '''
+    def __init__(self,p):
+        super().__init__()
+        self.endog = True  
+        self.p=p
+        self.train_data = None #training data
+        self.memory_data = None #saved data used to make prediction
+        self.name = 'AR{}'.format(self.p)
+
+
+    def train(self,X_train, train_data):
+
+        '''
+        Train the data using train_data
+        '''
+        self.train_data=train_data
+        self.memory_data= self.train_data[-self.p:]
+        initials=[0.1]*(self.p + 1) # p phi and 1 sigma
+
+        self.coeff=fmin(self.MLE,initials)
+
+    def train_update(self,x,y):
+        '''
+        pass a point in and train the model with the new point
+        '''
+        self.train_data.append(y)
+        self.train_data.pop(0)
+        self.coeff=fmin(self.MLE,[0.1]*(self.p + 1))
+
+    def MLE(self,initial):
+        '''
+        MLE used to solve the coefficients of AR(p) model
+        '''
+
+        Phi,Sigma=np.array(initial[:-1]),initial[-1]
+        N = len(self.train_data)
+        Z=[0]*N
+        Z[0]=0
+        Summation = 0
+        for i in range(self.p,N):
+            'X is from data initialization'
+            Z[i]=self.train_data[i]-Phi.dot(np.array(self.train_data[i-self.p:i]).T)
+            Summation += -1*((Z[i]**2)/(2*Sigma**2))
+        res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
+        return -res
+
+    def predict(self,x_test):
+        '''
+        pass one point and make one prediction
+        '''
+        return np.flip(np.array(self.coeff[:-1])).dot(np.array(self.memory_data[-self.p:]).T)
+        # It's a AR model, get the first argument (x)
+        
+    def update_data(self,x,y):
+        '''
+        update endog data
+        '''
+        self.memory_data.append(y)
+        self.memory_data.pop(0)
+        return
+
 
 # =============================================================================
 # class SARIMAX(experts):
@@ -194,68 +252,3 @@ class SVR(experts):
 # 
 # 
 # =============================================================================
-class AR(experts):
-    '''
-    AR(p) model, first trained, and then used to make prediction
-    '''
-    def __init__(self,p):
-        super().__init__()
-        self.endog = True  
-        self.p=p
-        self.train_data = None #training data
-        self.memory_data = None #saved data used to make prediction
-        self.name = 'AR{}'.format(self.p)
-
-
-    def train(self,X_train, train_data):
-
-        '''
-        Train the data using train_data
-        '''
-        self.train_data=train_data
-        self.memory_data= self.train_data[-self.p:]
-        initials=[0.1]*(self.p + 1) # p phi and 1 sigma
-
-        self.coeff=fmin(self.MLE,initials)
-
-    def train_update(self,x,y):
-        '''
-        pass a point in and train the model with the new point
-        '''
-        self.train_data.append(y)
-        self.train_data.pop(0)
-        self.coeff=fmin(self.MLE,[0.1]*(self.p + 1))
-
-    def MLE(self,initial):
-        '''
-        MLE used to solve the coefficients of AR(p) model
-        '''
-
-        Phi,Sigma=np.array(initial[:-1]),initial[-1]
-        N = len(self.train_data)
-        Z=[0]*N
-        Z[0]=0
-        Summation = 0
-        for i in range(self.p,N):
-            'X is from data initialization'
-            Z[i]=self.train_data[i]-Phi.dot(np.array(self.train_data[i-self.p:i]).T)
-            Summation += -1*((Z[i]**2)/(2*Sigma**2))
-        res=(-1*(N-1)/2) * np.log(2*math.pi)-((N-1)/2) * np.log(Sigma **2) + Summation
-        return -res
-
-    def predict(self,x_test):
-        '''
-        pass one point and make one prediction
-        '''
-        return np.flip(np.array(self.coeff[:-1])).dot(np.array(self.memory_data[-self.p:]).T)
-        # It's a AR model, get the first argument (x)
-        
-    def update_data(self,x,y):
-        '''
-        update endog data
-        '''
-        self.memory_data.append(y)
-        self.memory_data.pop(0)
-        return
-
-

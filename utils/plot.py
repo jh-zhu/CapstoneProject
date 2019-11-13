@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 #src_path='/scratch/mmy272/test/CapstoneProject/'
 #os.chdir(src_path)
 
-
     
 def plot_weight(W,model_names = None,title=None,size = (12,4),output_path = None):
     '''

@@ -22,7 +22,7 @@ of experts over time.
 # first we build an expert class that our algorithm wants to use
 # with model hyper-parameter
 # choose models from core.experts
-models = [SVR('linear',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(),AR(2)]
+models = [SVR('linear',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(0.0001,0.1),AR(2)]
 
 
 # then we choose an online learning algorithm we want to use
@@ -61,9 +61,9 @@ W = tester.compute_weight()
 model_names = [model.get_name() for model in models]
 size = (12,4)
 title = 'expert weights change'
-output_path = '/Users/Jiahao/Documents/weight.png'
+#output_path = '/Users/Jiahao/Documents/weight.png'
 
-plot.plot_weight(W,model_names,title,size,output_path)
+plot.plot_weight(W,model_names,title,size)
 
 
 
