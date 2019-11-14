@@ -8,7 +8,6 @@ Created on Mon Nov 11 19:52:07 2019
 
 import pandas as pd
 import os
-import math
 import numpy as np
 
 class learner_hpc(object):
@@ -48,8 +47,75 @@ class learner_hpc(object):
         return df_loss,df_prediction, model_names 
     
     def compute_weight_change(self):
+        '''
+        Compute weight change of experts within an online-learner
+        
+        Custimized for each online-learning algorithm
+        '''
+        
         pass
     
+    def compute_algo_prediction(self,W):
+        '''
+        Compute algorithm prediction over time 
+        
+        Output: T * 1 algo predictions
+        
+        '''
+        # time steps and columns
+        t,c = W.shape
+        
+        # the t * c expert prediction matrix
+        P = np.array(self.df_prediction)
+    
+        # t *1 algo prediction list
+        algo_prediction = np.zeros(t)
+        
+        # for each column
+        for i in range(c):
+            algo_prediction += W[:,i] * P[:,i]
+        
+        return np.array(algo_prediction)
+        
+    
+    def compute_algo_loss(self,P,y_test):
+        '''
+        Compute algorithm loss over time 
+        
+        Output: T * 1 algo losses
+        '''
+            
+        assert len(P) == len(y_test), "prediction and true y are not aligned"
+        
+        # algorithm T*1 loss
+        algo_losses = (P - y_test) * (P - y_test)
+        
+        return algo_losses
+
+    def compute_algo_regret(self,L):
+        # cumulative losses for each expert 
+        cumulative_losses = list(self.df_loss.sum())
+        
+        # find the expert with smallest cumulative loss 
+        # best expert in hingdsight 
+        val, idx = self.find_min(cumulative_losses)
+        
+        return sum(L) - val, self.model_names[idx]
+        
+    def find_leading_expert(self,W):
+        '''
+        Find the leading expert over time 
+        
+        Return the idx of experts
+        '''
+        leading_expert = np.zeros(len(W),dtype=int)
+        
+        for i,w in enumerate(W):
+            leading_expert[i] = self.find_min(w)[1]
+            
+        return leading_expert
+        
+        
     def redist_loss(self,raw_losses):
         '''
         Redistribute loss accured this round
@@ -82,8 +148,13 @@ class learner_hpc(object):
         '''
         s = sum(W)
         return W/s
+    
+    def find_min(self,l):
+        '''
+        Return the minimum value and its index for this list 
         
-
+        '''
+        return min((val, idx) for (idx, val) in enumerate(l))
 
 class EWA_hpc(learner_hpc):
     
@@ -99,29 +170,26 @@ class EWA_hpc(learner_hpc):
         
         n = len(self.model_names)
         # latest weight
-        w = [1/n]*n
+        w = np.array([1/n]*n)
         # weight matrix W 
-        W = [w]
+        W = []
         
-        # for each row (losses at that time step)
-        for i,row in self.df_loss.iterrows():
-            
-            # losses at this round
-            losses = np.array(row)
-            # if redist
+        
+        for i,loss in enumerate(losses):
             if self.redis > 0:
-                losses = self.redist_loss(losses)
+                l = self.redist_loss(loss)
+            else:
+                l = loss
             
-            # update weight this round
-            for j,weight in enumerate(w):
-                w[j] = weight * math.exp(-self.learning_rate*losses[j])
-            
-            # normalize 
+            # update current weight
+            w = w * np.exp(-self.learning_rate * l)
+            # renormalize weight
             w = self.normalize_weight(w)
             
             # add to W matrix
             W.append(w)
-        return W
+            
+        return np.array(W)
 
 class FTL_hpc(learner_hpc):
     
@@ -136,8 +204,7 @@ class FTL_hpc(learner_hpc):
         
         # number of experts
         n = len(self.model_names)
-        # number of time steps
-        T = len(losses)
+
         
         # weight matrix W 
         W = []
@@ -156,12 +223,50 @@ class FTL_hpc(learner_hpc):
             # add to cumulative loss
             cumulative_loss  = cumulative_loss + l
             # best expert this time
-            val, idx = min((val, idx) for (idx, val) in enumerate(cumulative_loss))
+            val, idx = self.find_min(cumulative_loss)
             
             w = np.zeros(n)
             w[idx] = 1
             W.append(w)
         
+        return np.array(W)
+    
+class RWM_hpc(learner_hpc):
+    
+    def __init__(self,source_path,learning_rate,redis=0):
+        super().__init__(source_path)
+        self.learning_rate = learning_rate
+        self.redis = redis
+    
+    def compute_weight_change(self):
+        
+        losses = np.array(self.df_loss) 
+        
+        n = len(self.model_names)
+        # latest weight
+        w = np.array([1/n]*n)
+        # weight matrix W 
+        W = []
+        
+        
+        for i,loss in enumerate(losses):
+            if self.redis > 0:
+                l = self.redist_loss(loss)
+            else:
+                l = loss
+            
+            median_loss = np.median(l)
+            
+            adjust = np.array([self.redis if v > median_loss else 1 for v in l])
+            
+            # update current weight
+            w = w * adjust
+            # renormalize weight
+            w = self.normalize_weight(w)
+            
+            # add to W matrix
+            W.append(w)
+            
         return np.array(W)
         
                 
