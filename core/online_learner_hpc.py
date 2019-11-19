@@ -15,12 +15,17 @@ class learner_hpc(object):
     A on-line learner that uses results of experts tested on test data
     '''
     
-    def __init__(self,source_path):
+    def __init__(self,source_path=None,loss_file=None,predict_file=None,sigma=None):
         '''
         source path: The directory that contains results from hpc
         '''
-        self.df_loss, self.df_prediction,self.model_names = self.build_matrix(source_path)
-        
+        if source_path:
+            self.df_loss, self.df_prediction,self.model_names = self.build_matrix(source_path)
+        else:
+            self.df_loss = pd.read_excel(loss_file,sheet_name=str(sigma),header=0)
+            self.df_prediction = pd.read_excel(predict_file,sheet_name=str(sigma),header=0)
+            self.model_names = self.df_loss.columns
+            
     
     def build_matrix(self,source_path):
         '''
@@ -100,7 +105,7 @@ class learner_hpc(object):
         # best expert in hingdsight 
         val, idx = self.find_min(cumulative_losses)
         
-        return sum(L) - val, self.model_names[idx]
+        return sum(L) - val, idx
         
     def find_leading_expert(self,W):
         '''
@@ -114,7 +119,9 @@ class learner_hpc(object):
             leading_expert[i] = self.find_min(w)[1]
             
         return leading_expert
-        
+    
+    def get_model_names(self):
+        return self.model_names
         
     def redist_loss(self,raw_losses):
         '''
