@@ -105,7 +105,7 @@ class LinearRegression(MLmodels):
         super().__init__()
         self.alpha = alpha
         self.l1_ratio = l1_ratio
-        self.name = 'LinearRegression'
+        self.name = 'Linear({},{})'.format(self.alpha, self.l1_ratio)
         self.model = linear.ElasticNet(alpha=self.alpha, l1_ratio=self.l1_ratio, random_state=0)
      
 
@@ -125,7 +125,7 @@ class SVR(MLmodels):
         self.gamma = gamma
         self.C = C
         self.epsilon = epsilon
-        self.name = 'SVR_{}'.format(self.kernel)
+        self.name = 'SVR({},{},{})'.format(self.kernel, self.gamma, self.C)
         self.model = svm.SVR(kernel=self.kernel, C=self.C, gamma=self.gamma, epsilon=self.epsilon)
 
 
@@ -150,6 +150,8 @@ class RandomForest(MLmodels):
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
         self.max_features = max_features
+        self.name = 'RF({},{},{},{}.{})'.format(self.n_estimators, self.max_depth, self.min_samples_split, 
+                                                self.min_samples_leaf, self.max_features)
         self.model = RandomForestRegressor(n_estimators=self.n_estimators, max_depth=self.max_depth,
                                            min_samples_split=self.min_samples_split, 
                                            min_samples_leaf=self.min_samples_leaf, 
@@ -160,10 +162,10 @@ class XGBoost(MLmodels):
     def __init__(self, max_depth, learning_rate, n_estimators, subsample, colsample_bytree, 
                  gamma, alpha, lambd):
         '''
-        :param learning_rate: step size shrinkage used to prevent overfitting
-                              0.01-0.2
         :param max_depth: determines how deeply each tree is allowed to grow during any boosting round
                           3-10
+        :param learning_rate: step size shrinkage used to prevent overfitting
+                              0.01-0.2
         :param subsample: percentage of samples used per tree. Low value can lead to underfitting
                           0.5-1
         :param colsample_bytree: percentage of features used per tree. High value can lead to overfitting
@@ -184,6 +186,10 @@ class XGBoost(MLmodels):
         self.gamma = gamma
         self.alpha = alpha
         self.lambd = lambd
+        self.name = 'XGBoost({},{},{},{},{},{},{},{})'.format(self.learning_rate, self.max_depth, 
+                                                              self.n_estimators, self.subsample, 
+                                                              self.colsample_bytree, self.gamma, self.alpha, 
+                                                              self.lambd)
         self.model = xgb.XGBRegressor(objective ='reg:squarederror', booster='gbtree', tree_method='auto',
                                       max_depth=self.max_depth, learning_rate=self.learning_rate, 
                                       n_estimators=self.n_estimators, subsample=self.subsample,

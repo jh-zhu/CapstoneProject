@@ -9,12 +9,9 @@ from utils.testOL import *
 from utils import plot
 
 """
-
 Example to use our online-earning algorithm.
 
-In this example, we show how to calculate weight change 
-of experts over time. 
-
+In this example, we show how to calculate weight change of experts over time. 
 """
 
 
@@ -22,10 +19,11 @@ of experts over time.
 # first we build an expert class that our algorithm wants to use
 # with model hyper-parameter
 # choose models from core.experts
-models = [SVR('linear',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(0.0001,0.1),
-          RandomForest(200,20,5,2,'auto'),AR(2)]
+models = [SVR('linear',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(0.001,0.1),
+          RandomForest(200,3,5,2,'auto'),XGBoost(3, 0.3, 200, 0.6, 0.6, 
+                 0.1, 0.1, 0.1), AR(2)]
 
-
+          
 # then we choose an online learning algorithm we want to use
 # Here, use exponential weighted average for example
 # with hyper-parameter redis of our algorithm
