@@ -7,6 +7,8 @@ Created on Sat Nov  9 10:38:23 2019
 """
 import numpy as np
 from generateParameter import generateParameter as GP
+from core.fileManager import fileName
+import os
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
@@ -30,18 +32,32 @@ cd /scratch/mmy272/test/CapstoneProject/core \n\
 
 ## run python tasks in cluster in parallel
 #change the middle part
+filename = fileName()
+data_dir = filename.data_folder
+output_dir = filename.output_folder
 
-train_data_path = '/scratch/mmy272/test/data/train.csv'
-test_data_path = '/scratch/mmy272/test/data/test.csv'
-output_directory = '/scratch/mmy272/test/output/'
+train_data_path = data_dir+'xgb_train_'
+test_data_path = data_dir+'xgb_test_'
+
+
+sigmas = [1,5,10,15,20]
 
 gammas = GP(0.01,0.05,5).grid()
 C = GP(0.1,0.5,5).grid()
 
 for gamma in gammas:
     for c in C:
-        file.write(f'\
-    srun -N 1 -n 1 python3 select_expert.py '+'SVR linear,{},{} {} {} {}'.format(gamma,c,train_data_path,test_data_path,output_directory) +' & \n')
+        for sigma in sigmas:
+            read_train=train_data_path+str(sigma)+'.csv'
+            read_test=test_data_path+str(sigma)+'.csv'
+            output=output_dir+str(sigma)+'/'
+            
+            if not os.path.exists(output):
+                os.makedirs(output)
+            
+            file.write(f'\
+    srun -N 1 -n 1 python3 select_expert.py '+'SVR linear,{},{} {} {} {}'.format(gamma,c,read_train,read_test,output) +' & \n')
+
 
 file.write('wait ')
 
