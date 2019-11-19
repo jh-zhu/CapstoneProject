@@ -14,7 +14,7 @@ srun python3 /scratch/mmy272/test/CapstoneProject/core/fileManager.py after all 
 class fileName(object):
     
     def __init__(self):
-        self.data_folder = '/scratch/mmy272/test/data/'
+        self.data_folder = '/scratch/mmy272/test/CapstoneProject/data/'
         self.output_folder = '/scratch/mmy272/test/output/'
         self.output_combine='/scratch/mmy272/test/output_combine/'
         
