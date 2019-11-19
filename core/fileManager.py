@@ -36,13 +36,11 @@ class fileName(object):
         
         for sigma in os.listdir(self.output_folder):
             for result in os.listdir(self.output_folder+sigma):
-                df=pd.read_csv(self.output_folder+sigma+result,header=None) 
-                df_prediction=df['prediction']
-                df_prediction.rename(columns={'prediction': result})
+                df=pd.read_csv(self.output_folder+sigma+'/'+result,header=None) 
+                df_prediction=pd.DataFrame(df['prediction'],columns=[result])
                 df_prediction.to_excel(writer_pred, sheet_name=sigma)
                 
-                df_loss=df['loss']
-                df_loss.rename(columns={'loss': result})
+                df_loss=pd.DataFrame(df['loss'],columns=[result])
                 df_loss.to_excel(writer_loss, sheet_name=sigma)
                 
     def clean(self):
