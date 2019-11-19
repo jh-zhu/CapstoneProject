@@ -80,10 +80,18 @@ class MLmodels(experts):
         input: a list of length p(# of features )
         output: a float number: prediction
         '''
-        # wrap a list into a 1*p matrix
-        x_test = np.array([x_test])
+        x_test = np.array([x_test])  # wrap to a 2D matrix, size=[1, n_features]
         pred_y = self.fitted_model.predict(x_test)
         return pred_y[0]
+    
+    def predict_batch(self, X_test):
+        '''
+        Predict a batch of points
+        input: 2D matrix, size=[n_samples, n_features]
+        output: 1D array of prediction
+        '''
+        pred_y = self.fitted_model.predict(X_test)
+        return pred_y
     
         
 class LinearRegression(MLmodels):
@@ -153,10 +161,13 @@ class XGBoost(MLmodels):
                  gamma, alpha, lambd):
         '''
         :param learning_rate: step size shrinkage used to prevent overfitting
-                              Range is [0,1]
+                              0.01-0.2
         :param max_depth: determines how deeply each tree is allowed to grow during any boosting round
+                          3-10
         :param subsample: percentage of samples used per tree. Low value can lead to underfitting
+                          0.5-1
         :param colsample_bytree: percentage of features used per tree. High value can lead to overfitting
+                                 0.5-1
         :param n_estimators: number of trees you want to build
         :param gamma: whether a given node will split based on the expected reduction in loss after the split.
                       A higher value leads to fewer splits.
