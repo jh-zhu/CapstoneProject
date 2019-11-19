@@ -17,21 +17,25 @@ def plot_weight(W,model_names = None,title=None,size = (12,4),output_path = None
     '''
     plot weight weight change of all experts 
     
-    Input: W: weight matrix, columns are time steps, rows are experts
+    Input: W: weight matrix, rows are time steps, columns are experts
            model_names: a list of model names
            size: plot size 
            output_path: string, a path to output file if want plot to be saved
            
     '''
     fig = plt.figure(figsize = size)
+    
     for weight in W:
         _ = plt.plot(weight)
+#        if model_names is not None:
+#            for i, w in enumerate(weight):
+#                if w == max(weight):
+#                    plt.legend(model_names[i], loc='best')
+        
         
     plt.xlabel('time')
     plt.ylabel('weights')
-    
-    if model_names is not None:
-        plt.legend(model_names)
+
     if title is not None:
         plt.title(title)
     

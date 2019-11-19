@@ -111,7 +111,7 @@ class learner_hpc(object):
         leading_expert = np.zeros(len(W),dtype=int)
         
         for i,w in enumerate(W):
-            leading_expert[i] = self.find_min(w)[1]
+            leading_expert[i] = self.find_max(w)[1]
             
         return leading_expert
         
@@ -155,6 +155,10 @@ class learner_hpc(object):
         
         '''
         return min((val, idx) for (idx, val) in enumerate(l))
+    
+    def find_max(self,l):
+        return max((val, idx) for (idx, val) in enumerate(l))
+        
 
 class EWA_hpc(learner_hpc):
     
