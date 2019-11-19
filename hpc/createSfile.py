@@ -8,6 +8,7 @@ Created on Sat Nov  9 10:38:23 2019
 import numpy as np
 from generateParameter import generateParameter as GP
 from core.fileManager import fileName
+import os
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
@@ -50,6 +51,9 @@ for gamma in gammas:
             read_train=train_data_path+str(sigma)+'.csv'
             read_test=test_data_path+str(sigma)+'.csv'
             output=output_dir+str(sigma)+'/'
+            
+            if not os.path.exists(output):
+                os.makedirs(output)
             
             file.write(f'\
     srun -N 1 -n 1 python3 select_expert.py '+'SVR linear,{},{} {} {} {}'.format(gamma,c,read_train,read_test,output) +' & \n')
