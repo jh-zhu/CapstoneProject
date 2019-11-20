@@ -15,15 +15,15 @@ class learner_hpc(object):
     A on-line learner that uses results of experts tested on test data
     '''
     
-    def __init__(self,source_path=None,loss_file=None,predict_file=None,sigma=None):
+    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None):
         '''
         source path: The directory that contains results from hpc
         '''
         if source_path:
             self.df_loss, self.df_prediction,self.model_names = self.build_matrix(source_path)
         else:
-            self.df_loss = pd.read_excel(loss_file,sheet_name=str(sigma),header=0)
-            self.df_prediction = pd.read_excel(predict_file,sheet_name=str(sigma),header=0)
+            self.df_loss = loss_file[str(sigma)]
+            self.df_prediction = prediction_file[str(sigma)]
             self.model_names = self.df_loss.columns
             
     
@@ -169,8 +169,8 @@ class learner_hpc(object):
 
 class EWA_hpc(learner_hpc):
     
-    def __init__(self,source_path,learning_rate,redis=0):
-        super().__init__(source_path)
+    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
+        super().__init__(source_path,loss_file,prediction_file,sigma)
         self.learning_rate = learning_rate
         self.redis = redis
     
@@ -204,8 +204,8 @@ class EWA_hpc(learner_hpc):
 
 class FTL_hpc(learner_hpc):
     
-    def __init__(self,source_path,redis=0):
-        super().__init__(source_path)
+    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
+        super().__init__(source_path,loss_file,prediction_file,sigma)
         self.redis = redis
     
     def compute_weight_change(self):
@@ -242,10 +242,10 @@ class FTL_hpc(learner_hpc):
         
         return np.array(W)
     
-class RWM_hpc(learner_hpc):
+class RWM_hpc(learner_hpc,):
     
-    def __init__(self,source_path,learning_rate,redis=0):
-        super().__init__(source_path)
+    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
+        super().__init__(source_path,loss_file,prediction_file,sigma)
         self.learning_rate = learning_rate
         self.redis = redis
     
