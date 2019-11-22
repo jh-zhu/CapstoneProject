@@ -67,6 +67,9 @@ class learner_hpc(object):
         Output: T * 1 algo predictions
         
         '''
+        # W is 1 time step later than expert prediction
+        W = W[:-1,:]
+        
         # time steps and columns
         t,c = W.shape
         
@@ -180,10 +183,12 @@ class EWA_hpc(learner_hpc):
         
         
         n = len(self.model_names)
-        # latest weight
-        w = np.array([1/n]*n)
+
         # weight matrix W 
         W = []
+        # initial weight
+        w = np.array([1/n]*n)
+        W.append(w)
         
         
         for i,loss in enumerate(losses):
@@ -219,6 +224,11 @@ class FTL_hpc(learner_hpc):
         
         # weight matrix W 
         W = []
+        
+        # initial weight, randomly pick one
+        w = np.zeros(n,dtype=int)
+        w[np.random.randint(0,n)] = 1
+        W.append(w)
         
         # cumulative loss
         cumulative_loss  = np.zeros(n)

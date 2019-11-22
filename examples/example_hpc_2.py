@@ -35,7 +35,7 @@ prediction_file = '/Users/Jiahao/Downloads/prediction.xlsx' # combined predict c
 # very slow. So read  all sheets here at once
 # can do future improvement on speed here
 loss_dict = pd.read_excel(loss_file,sheet_name=None,header=0,index_col=0)
-prediction_dict = loss_dict = pd.read_excel(prediction_file,sheet_name=None,header=0,index_col=0)
+prediction_dict = pd.read_excel(prediction_file,sheet_name=None,header=0,index_col=0)
 
 
 redis = 0
@@ -45,7 +45,7 @@ regrets = []
 for sigma in sigmas:
 
     y_test = np.array(pd.read_csv('/Users/Jiahao/Documents/classes/capstone/online_learning/data/xgb_test_{}.csv'.format(sigma),header=None).iloc[:,0])
-    learner = EWA_hpc(learning_rate=0.05,loss_file=loss_dict,prediction_file=prediction_dict,sigma=sigma,redis=redis)
+    learner = FTL_hpc(loss_file=loss_dict,prediction_file=prediction_dict,sigma=sigma,redis=redis)
     
     # get expert weights change matrix
     W = learner.compute_weight_change()
@@ -62,7 +62,7 @@ for sigma in sigmas:
 
 
 plot_weight(W.T)
-plot_regret(sigmas,regrets,title='EWA: regret vs sigma')
+plot_regret(sigmas,regrets,title='FTL: regret vs sigma')
 
 
 percents = []
