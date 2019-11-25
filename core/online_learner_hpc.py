@@ -68,7 +68,7 @@ class learner_hpc(object):
         
         '''
         # W is 1 time step later than expert prediction
-        W = W[:-1,:]
+#        W = W[:-1,:]
         
         # time steps and columns
         t,c = W.shape
@@ -227,14 +227,20 @@ class FTL_hpc(learner_hpc):
         W = []
         
         # initial weight, randomly pick one
-        w = np.zeros(n,dtype=int)
-        w[np.random.randint(0,n)] = 1
-        W.append(w)
+#        w = np.zeros(n,dtype=int)
+        #w[np.random.randint(0,n)] = 1
+        #W.append(w)
         
         # cumulative loss
         cumulative_loss  = np.zeros(n)
         
         for i,loss in enumerate(losses):
+            if i == 0:
+                # randomize first weight
+                idx = np.random.randint(0,n,1)
+            else:
+                # best expert this time
+                val, idx = self.find_min(cumulative_loss)
             
             # redist loss
             if self.redis > 0:
@@ -245,10 +251,8 @@ class FTL_hpc(learner_hpc):
             if self.p_sigma is not None:
                 l = l + np.random.normal(0,self.p_sigma,n)
             
-            # add to cumulative loss
+             # add to cumulative loss
             cumulative_loss  = cumulative_loss + l
-            # best expert this time
-            val, idx = self.find_min(cumulative_loss)
             
             w = np.zeros(n)
             w[idx] = 1
@@ -256,7 +260,7 @@ class FTL_hpc(learner_hpc):
         
         return np.array(W)
     
-class RWM_hpc(learner_hpc,):
+class RWM_hpc(learner_hpc):
     
     def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
         super().__init__(source_path,loss_file,prediction_file,sigma)
@@ -272,7 +276,6 @@ class RWM_hpc(learner_hpc,):
         w = np.array([1/n]*n)
         # weight matrix W 
         W = []
-        
         
         for i,loss in enumerate(losses):
             if self.redis > 0:
@@ -294,7 +297,62 @@ class RWM_hpc(learner_hpc,):
             
         return np.array(W)
         
+    def compute_weight_change_2(self):
+        
+        losses = np.array(self.df_loss) 
+        
+        n = len(self.model_names)
+        # latest weight
+        w = np.array([1/n]*n)
+        # weight matrix W 
+        W = []
+        
+        for i,loss in enumerate(losses):
+            if self.redis > 0:
+                l = self.redist_loss(loss)
+            else:
+                l = loss
+            
+            median_loss = np.median(l)
+            
+            adjust = np.array([self.redis if v > median_loss else 1 for v in l])
+            
+            # update current weight
+            w = w * adjust
+            # renormalize weight
+            w = self.normalize_weight(w)
+            
+            # add to W matrix
+            W.append(w)
+            
+        return np.array(W)
+    
+    
+
                 
+        w = np.zeros(n,dtype=int)
+        w[np.random.choice(np.arange(n), p=w)] = 1
+        W.append(w)
+        
+        # cumulative loss
+        cumulative_loss  = np.zeros(n)
+        
+        for i,loss in enumerate(losses):
+            
+            # redist loss
+            if self.redis > 0:
+                l = self.redist_loss(loss)
+            else:
+                l = loss
+            
+            # add to cumulative loss
+            cumulative_loss  = cumulative_loss + l
+            # best expert this time
+            val, idx = self.find_min(cumulative_loss)
+            
+            w = np.zeros(n)
+            w[idx] = 1
+            W.append(w)
                 
         
             
