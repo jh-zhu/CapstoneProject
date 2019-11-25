@@ -209,9 +209,10 @@ class EWA_hpc(learner_hpc):
 
 class FTL_hpc(learner_hpc):
     
-    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
+    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None,p_sigma = None,redis=0):
         super().__init__(source_path,loss_file,prediction_file,sigma)
         self.redis = redis
+        self.p_sigma = p_sigma
     
     def compute_weight_change(self):
         
@@ -240,6 +241,9 @@ class FTL_hpc(learner_hpc):
                 l = self.redist_loss(loss)
             else:
                 l = loss
+            
+            if self.p_sigma is not None:
+                l = l + np.random.normal(0,self.p_sigma,n)
             
             # add to cumulative loss
             cumulative_loss  = cumulative_loss + l

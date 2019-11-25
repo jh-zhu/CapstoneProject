@@ -56,7 +56,7 @@ def plot_regret(sigmas,regrets,title=None,size = (12,4),output_path = None):
     
     '''
     fig = plt.figure(figsize = size)
-    _ = plt.plot(sigmas,regrets)
+    _ = plt.scatter(sigmas,regrets)
         
     plt.xlabel('sigma')
     plt.ylabel('regrets')
@@ -81,7 +81,7 @@ def plot_choose_right_expert(sigmas,percents,title=None,size = (12,4),output_pat
     '''
     
     fig = plt.figure(figsize = size)
-    _ = plt.plot(sigmas,percents)
+    _ = plt.scatter(sigmas,percents)
         
     plt.xlabel('sigma')
     plt.ylabel('percent of time choosing right experts')

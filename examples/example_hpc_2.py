@@ -27,25 +27,15 @@ expert losses and predictions using testing data.
 
 
 
-loss_file = '/Users/Jiahao/Downloads/loss.xlsx'  # combined loss csv
-prediction_file = '/Users/Jiahao/Downloads/prediction.xlsx' # combined predict csv
-
-
-# read in excel file
-# very slow. So read  all sheets here at once
-# can do future improvement on speed here
-loss_dict = pd.read_excel(loss_file,sheet_name=None,header=0,index_col=0)
-prediction_dict = pd.read_excel(prediction_file,sheet_name=None,header=0,index_col=0)
-
-
-redis = 0
-sigmas = [1,5,10,15,20]
+redis = 0.4
+sigmas = [0,1,5,10,15,20,50]
 
 regrets = []
 for sigma in sigmas:
-
+    source_path = '/Users/Jiahao/Documents/classes/capstone/output/{}/'.format(sigma)
+    
     y_test = np.array(pd.read_csv('/Users/Jiahao/Documents/classes/capstone/online_learning/data/xgb_test_{}.csv'.format(sigma),header=None).iloc[:,0])
-    learner = FTL_hpc(loss_file=loss_dict,prediction_file=prediction_dict,sigma=sigma,redis=redis)
+    learner = FTL_hpc(source_path = source_path, redis=redis)
     
     # get expert weights change matrix
     W = learner.compute_weight_change()
@@ -60,16 +50,14 @@ for sigma in sigmas:
     
     regrets.append(R)
 
-
-plot_weight(W.T)
 plot_regret(sigmas,regrets,title='FTL: regret vs sigma')
 
 
 percents = []
 for sigma in sigmas:
-
+    source_path = '/Users/Jiahao/Documents/classes/capstone/output/{}/'.format(sigma)
     y_test = np.array(pd.read_csv('/Users/Jiahao/Documents/classes/capstone/online_learning/data/xgb_test_{}.csv'.format(sigma),header=None).iloc[:,0])
-    learner = FTL_hpc(loss_file=loss_dict,prediction_file=prediction_dict,sigma=sigma,redis=0.2)
+    learner = FTL_hpc(source_path = source_path, redis=0.2)
     
     # get expert weights change matrix
     W = learner.compute_weight_change()
