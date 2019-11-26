@@ -145,9 +145,7 @@ class learner_hpc(object):
         # calculate losses after redistribution adjustment
         losses_adjusted = losses_remain + float(1/(n-1))*sum(losses_redis) - float(1/(n-1)) * losses_redis
         return losses_adjusted
-        
-        
-        
+      
 
 
     def normalize_weight(self,W):
@@ -268,23 +266,23 @@ class RWM_hpc(learner_hpc):
         self.redis = redis
     
     def compute_weight_change(self):
-        
-        losses = np.array(self.df_loss) 
-        
-        n = len(self.model_names)
-        # latest weight
+         # row time, column experts
+        losses = np.array(self.df_loss)    
+        # number of experts
+        n = len(self.model_names)  
+        # weight distribution list of experts
         w = np.array([1/n]*n)
         # weight matrix W 
         W = []
         
         for i,loss in enumerate(losses):
+            idx = np.random.choice(np.arange(0,n), p=w)                  
             if self.redis > 0:
                 l = self.redist_loss(loss)
             else:
                 l = loss
             
-            median_loss = np.median(l)
-            
+            median_loss = np.median(l)          
             adjust = np.array([self.redis if v > median_loss else 1 for v in l])
             
             # update current weight
@@ -292,12 +290,23 @@ class RWM_hpc(learner_hpc):
             # renormalize weight
             w = self.normalize_weight(w)
             
+            # weight list of experts
+            real_w = np.zeros(n)
+            real_w[idx] = 1
             # add to W matrix
-            W.append(w)
+            W.append(real_w)
             
         return np.array(W)
         
-    def compute_weight_change_2(self):
+    
+class RWM2_hpc(learner_hpc):
+    
+    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
+        super().__init__(source_path,loss_file,prediction_file,sigma)
+        self.learning_rate = learning_rate
+        self.redis = redis
+        
+    def compute_weight_change(self):
         
         losses = np.array(self.df_loss) 
         
@@ -327,32 +336,7 @@ class RWM_hpc(learner_hpc):
             
         return np.array(W)
     
-    
-
-                
-        w = np.zeros(n,dtype=int)
-        w[np.random.choice(np.arange(n), p=w)] = 1
-        W.append(w)
-        
-        # cumulative loss
-        cumulative_loss  = np.zeros(n)
-        
-        for i,loss in enumerate(losses):
             
-            # redist loss
-            if self.redis > 0:
-                l = self.redist_loss(loss)
-            else:
-                l = loss
-            
-            # add to cumulative loss
-            cumulative_loss  = cumulative_loss + l
-            # best expert this time
-            val, idx = self.find_min(cumulative_loss)
-            
-            w = np.zeros(n)
-            w[idx] = 1
-            W.append(w)
                 
         
             
