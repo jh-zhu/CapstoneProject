@@ -19,7 +19,6 @@ expert losses and predictions using testing data.
 #y_test = np.array(pd.read_csv('/Users/Jiahao/Downloads/test.csv').iloc[:,0])
 
 sigma = 0
-p_sigma = 0.5
 
 source_path = '/Users/Jiahao/Documents/classes/capstone/output/{}/'.format(sigma)
 y_test = np.array(pd.read_csv("/Users/Jiahao/Documents/classes/capstone/online_learning/data/xgb_test_{}.csv".format(sigma), header=None).iloc[:,0])
@@ -27,10 +26,11 @@ y_test = np.array(pd.read_csv("/Users/Jiahao/Documents/classes/capstone/online_l
 
 # create a online learner calculator
 redis = 0.4
-learning_rate = 0.5
-OL_name= "FTL"
-learner = FTL_hpc(source_path = source_path,
-                  redis = redis,p_sigma=p_sigma)
+learning_rate = 0.05
+OL_name= "RWM2"
+learner = RWM2_hpc(source_path = source_path,
+                  learning_rate = learning_rate,
+                  redis = redis)
 
 
 # get expert weights change matrix
@@ -52,7 +52,7 @@ R,best_expert = learner.compute_algo_regret(L)
 # for example, plot weight change over time
 
 names = learner.model_names
-output = '/Users/Jiahao/Downloads/p_sigma{}.png'.format(p_sigma)
+output = '/Users/Jiahao/Downloads/plot3/sigma{}.png'.format(sigma)
 #names = ''
 plot_weight((W.T),names, title = OL_name+"  "+names[lead_expert[-1]]+"  "+str(redis),output_path = output)
 

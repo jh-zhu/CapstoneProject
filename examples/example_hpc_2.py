@@ -28,7 +28,7 @@ expert losses and predictions using testing data.
 
 
 redis = 0.4
-sigmas = [0,1,5,10,15,20,50]
+sigmas = [0,1,5,10,15,20]
 
 regrets = []
 for sigma in sigmas:
@@ -57,7 +57,7 @@ percents = []
 for sigma in sigmas:
     source_path = '/Users/Jiahao/Documents/classes/capstone/output/{}/'.format(sigma)
     y_test = np.array(pd.read_csv('/Users/Jiahao/Documents/classes/capstone/online_learning/data/xgb_test_{}.csv'.format(sigma),header=None).iloc[:,0])
-    learner = FTL_hpc(source_path = source_path, redis=0.2)
+    learner = FTL_hpc(source_path = source_path, redis=redis)
     
     # get expert weights change matrix
     W = learner.compute_weight_change()

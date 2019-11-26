@@ -266,7 +266,7 @@ class RWM_hpc(learner_hpc):
         self.redis = redis
     
     def compute_weight_change(self):
-         # row time, column experts
+        # row time, column experts
         losses = np.array(self.df_loss)    
         # number of experts
         n = len(self.model_names)  
@@ -274,9 +274,10 @@ class RWM_hpc(learner_hpc):
         w = np.array([1/n]*n)
         # weight matrix W 
         W = []
-        
+        import random
         for i,loss in enumerate(losses):
-            idx = np.random.choice(np.arange(0,n), p=w)                  
+#            idx = np.random.choice(np.arange(0,n), p=w)   
+            idx = random.choices(np.arange(0,n), w)                  
             if self.redis > 0:
                 l = self.redist_loss(loss)
             else:
@@ -311,26 +312,31 @@ class RWM2_hpc(learner_hpc):
         losses = np.array(self.df_loss) 
         
         n = len(self.model_names)
-        # latest weight
-        w = np.array([1/n]*n)
+        
+        l = np.zeros(n,dtype=int)
+        
         # weight matrix W 
         W = []
         
         for i,loss in enumerate(losses):
+            if i==0:
+                # latest weight
+                w = np.array([1/n]*n)
+            else:
+                median_loss = np.median(l)
+            
+                adjust = np.array([self.redis if v > median_loss else 1 for v in l])
+                
+                # update current weight
+                w = w * adjust
+                # renormalize weight
+                w = self.normalize_weight(w)
+                
             if self.redis > 0:
                 l = self.redist_loss(loss)
             else:
                 l = loss
-            
-            median_loss = np.median(l)
-            
-            adjust = np.array([self.redis if v > median_loss else 1 for v in l])
-            
-            # update current weight
-            w = w * adjust
-            # renormalize weight
-            w = self.normalize_weight(w)
-            
+         
             # add to W matrix
             W.append(w)
             
