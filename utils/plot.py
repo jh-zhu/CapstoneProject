@@ -7,13 +7,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#src_path = '/Users/Jiahao/Documents/classes/capstone/online_learning/'
-#src_path = '/Users/yitongcai/Coding/CapstoneProject/'
-#src_path='/scratch/mmy272/test/CapstoneProject/'
-#os.chdir(src_path)
-
     
-def plot_weight(W,model_names = None,title=None,size = (12,4),output_path = None):
+def plot_weight(W,model_names = None,title=None, size = (12,4),output_path = None):
     '''
     plot weight weight change of all experts 
     
@@ -39,11 +34,15 @@ def plot_weight(W,model_names = None,title=None,size = (12,4),output_path = None
     if title is not None:
         plt.title(title)
     
-    #plt.show()
+#    if text is not None:
+#        plt.text(text)
+    
     if output_path is not None:
         plt.savefig(output_path)
     else:
         plt.show()
+        
+    return fig
         
         
 def plot_regret(sigmas,regrets,title=None,size = (12,4),output_path = None):
@@ -69,6 +68,8 @@ def plot_regret(sigmas,regrets,title=None,size = (12,4),output_path = None):
         plt.savefig(output_path)
     else:
         plt.show()
+        
+    return fig
 
 def plot_choose_right_expert(sigmas,percents,title=None,size = (12,4),output_path = None):
     '''
@@ -95,4 +96,5 @@ def plot_choose_right_expert(sigmas,percents,title=None,size = (12,4),output_pat
     else:
         plt.show()
         
+    return fig
 
