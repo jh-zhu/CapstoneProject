@@ -52,7 +52,7 @@ y_test = np.array(pd.read_csv("/Users/yitongcai/Coding/data/xgb_test_{}.csv".for
 #                       title = OL_name+"  grid_search  "+str(redis)+"  "+str(sigma)
 ##                       +" with threshold"
 #                       )
-num_of_experts=[10,50, 100, 500, 1000]
+num_of_experts=[10, 50, 100, 500, 1000]
 
 '''RANDOM SEARCH''' 
 algo_abs_loss_random=[]
