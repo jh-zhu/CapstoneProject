@@ -69,14 +69,15 @@ class fileName(object):
                 print(e)
         
     
-if __name__ == '__main__':
-    
-    
 # =============================================================================
+# if __name__ == '__main__':
+#     
+#     
 #     file=fileName()
 #     #file.output_folder = '/Users/mingmingyu/Downloads/output/'
 #     #file.output_combine = '/Users/mingmingyu/Downloads/output_combine/'
 #     file.combine_files()
 #     file.clean()
-#     
-# =============================================================================    
+# =============================================================================
+    
+    
