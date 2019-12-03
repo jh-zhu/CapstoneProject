@@ -12,7 +12,7 @@ import os
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
-tpn=4 #task per node
+tpn=50 #task per node
 cpt=1 #cpu per task
 file=open('run-py.s','w')
 file.write(f'#!/bin/bash \n\
@@ -42,13 +42,14 @@ test_data_path = data_dir+'xgb_test_'
 
 sigmas = [0,5,20]
 
-modelName='SVR'
-kernel = 'rbf'
-gammas = GP(-15,3,9).exp()
-C = GP(-5,15,10).exp()
+modelName='LR'
+alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+l1_ratio=np.arange(0.0, 1.0, 0.1)
+#gammas = GP(-15,3,9).exp()
+#C = GP(-5,15,10).exp()
 
-for gamma in gammas:
-    for c in C:
+for alpha in alphas:
+    for l1 in l1_ratio:
         for sigma in sigmas:
             read_train=train_data_path+str(sigma)+'.csv'
             read_test=test_data_path+str(sigma)+'.csv'
@@ -58,7 +59,7 @@ for gamma in gammas:
                 os.makedirs(output)
             
             file.write(f'\
-    srun -N 1 -n 1 python3 select_expert.py '+modelName+' '+kernel+',{},{} {} {} {}'.format(gamma,c,read_train,read_test,output) +' & \n')
+    srun -N 1 -n 1 python3 select_expert.py '+modelName+' '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
 
 
 file.write('wait ')
