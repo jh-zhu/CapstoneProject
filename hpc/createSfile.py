@@ -12,7 +12,7 @@ import os
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
-tpn=int(n_tasks/n_nodes) #task per node
+tpn=4 #task per node
 cpt=1 #cpu per task
 file=open('run-py.s','w')
 file.write(f'#!/bin/bash \n\
