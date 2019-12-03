@@ -99,7 +99,7 @@ class LinearRegression(MLmodels):
         '''
         :param alpha: Constant that multiplies the penalty terms 
                      [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
-        :param l1_ratio: 
+        :param l1_ratio: L1 regularization on leaf weights
                         np.arange(0.0, 1.0, 0.1)
         '''
         super().__init__()
@@ -173,10 +173,16 @@ class XGBoost(MLmodels):
         :param colsample_bytree: percentage of features used per tree. High value can lead to overfitting
                                  0.5-1
         :param n_estimators: number of trees you want to build
+                            [100, 250, 500, 1000]                            
         :param gamma: whether a given node will split based on the expected reduction in loss after the split.
                       A higher value leads to fewer splits.
+                      [0.01, 0.1, 0.3, 0.5, 1, 1.5, 2]
         :param alpha: L1 regularization on leaf weights
+                      np.arange(0.0, 1.0, 0.1)
         :param lambda: L2 regularization on leaf weights 
+                      np.arange(0.0, 5.0, 1.0)
+                       
+        
         '''
         
         super().__init__()

@@ -12,7 +12,7 @@ import os
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
-tpn=10 #task per node
+tpn=5 #task per node
 cpt=1 #cpu per task
 file=open('run-py.s','w')
 file.write(f'#!/bin/bash \n\
@@ -39,13 +39,10 @@ output_dir = filename.output_folder
 train_data_path = data_dir+'xgb_train_'
 test_data_path = data_dir+'xgb_test_'
 
+sigmas = [0,5,20,100]
+points_grid=10000
 
-sigmas = [0,5,20]
-points_grid=1000
-
-alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
-l1_ratio=np.arange(0.0, 1.0, 0.1)
-gammas = GP(-15,3,9).exp()
+gammas = GP(-15,3,10).exp()
 Cs = GP(-5,15,10).exp()
 
 for gamma in gammas:
@@ -55,12 +52,13 @@ for gamma in gammas:
             read_test=test_data_path+str(sigma)+'.csv'
             output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
             
-# =============================================================================
-#             if not os.path.exists(output):
-#                 os.makedirs(output)
-#             
-# =============================================================================
+            if not os.path.exists(output):
+                os.makedirs(output)
+            
             file.write(f'srun -N 1 -n 1 python3 select_expert.py SVR '+ 'rbf,{},{} {} {} {}'.format(gamma,C,read_train,read_test,output) +' & \n')
+
+alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+l1_ratio=np.arange(0.0, 1.0, 0.1)
 
 for alpha in alphas:
     for l1 in l1_ratio:
@@ -71,10 +69,11 @@ for alpha in alphas:
             
             file.write(f'\srun -N 1 -n 1 python3 select_expert.py LR '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
 
-n_estimators=[1,2,3]
-max_depth=[1,2,3]
-min_samples_split=[1,2,3]
-min_samples_leaf=[1,2,3]
+n_estimators=[int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+max_depth=[int(x) for x in np.linspace(10, 110, num = 11)]
+max_depth.append(None)
+min_samples_split=[2, 5, 10]
+min_samples_leaf=[1,2,4]
 max_features=['auto', 'sqrt']
 
 for n in n_estimators:
@@ -89,17 +88,17 @@ for n in n_estimators:
                                                 
                         file.write(f'srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} {} {} {}'.format(n, depth, split, leaf, feature,read_train,read_test,output) +' & \n')            
 
-max_depth=[1,2,3]
-learning_rate=[1,2,3]
-n_estimators=[1,2,3]
-subsample=[1,2,3]
-colsample_bytree=[1,2,3]
-gamma2=[1,3]
-alpha2=[1,3]
-lambd=[1,3]
+max_depth2=[int(x) for x in np.linspace(start = 3, stop = 7, num = 4)]
+learning_rate=GP(0.01,0.2,4).grid()
+n_estimators2=[100,250,500,1000]
+subsample=GP(0.5,1,4).grid()
+colsample_bytree=GP(0.5,1,4).grid()
+gamma2=[0.01,1]
+alpha2=[0.0,1]
+lambd=[0.0,5]
   
-for n in n_estimators:
-    for depth in max_depth:
+for n in n_estimators2:
+    for depth in max_depth2:
         for l in learning_rate:
             for sample in subsample:
                 for bytree in colsample_bytree:
