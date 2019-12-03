@@ -9,19 +9,22 @@ Created on Mon Nov 11 19:52:07 2019
 import pandas as pd
 import os
 import numpy as np
+import random
 
 class learner_hpc(object):
     '''
     A on-line learner that uses results of experts tested on test data
     '''
     
-    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None):
+    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None, num_experts=None):
         '''
         source path: The directory that contains results from hpc
         '''
-        if source_path:
+        if num_experts:
+            self.df_loss, self.df_prediction,self.model_names = self.build_matrix_random(source_path, num_experts)
+        if not num_experts and source_path:
             self.df_loss, self.df_prediction,self.model_names = self.build_matrix(source_path)
-        else:
+        elif not num_experts and not source_path: 
             self.df_loss = loss_file[str(sigma)]
             self.df_prediction = prediction_file[str(sigma)]
             self.model_names = self.df_loss.columns
@@ -36,7 +39,7 @@ class learner_hpc(object):
         df_prediction = pd.DataFrame()
         model_names = []
         
-        for f in os.listdir(source_path):
+        for f in sorted(os.listdir(source_path)):
             if '.csv' in f:
                 model_name = f[:-4]
                 model_names.append(model_name)
@@ -48,6 +51,37 @@ class learner_hpc(object):
                 
                 prediction = df_temp.loc[:,'prediction']
                 df_prediction[model_name] = prediction
+        
+        return df_loss,df_prediction, model_names 
+    
+    def build_matrix_random(self, source_path, num_experts):
+        '''
+        Build a loss and a prediction matrix
+        based on all files in provided directory
+        '''
+        df_loss = pd.DataFrame()
+        df_prediction = pd.DataFrame()
+        model_names = []
+        
+        start = 0
+        sources=os.listdir(source_path)
+        random.shuffle(sources)
+#        print(shuffle)
+        for f in sources:
+            if '.csv' in f:
+                model_name = f[:-4]
+                model_names.append(model_name)
+                
+                df_temp = pd.read_csv(os.path.join(source_path,f))
+                
+                loss = df_temp.loc[:,'loss']
+                df_loss[model_name] = loss
+                
+                prediction = df_temp.loc[:,'prediction']
+                df_prediction[model_name] = prediction
+                start+=1
+                if start==num_experts:
+                    break
         
         return df_loss,df_prediction, model_names 
     
@@ -189,8 +223,8 @@ class learner_hpc(object):
 
 class EWA_hpc(learner_hpc):
     
-    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
-        super().__init__(source_path,loss_file,prediction_file,sigma)
+    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0, num_experts=None):
+        super().__init__(source_path,loss_file,prediction_file,sigma, num_experts)
         self.learning_rate = learning_rate
         self.redis = redis
     
@@ -226,8 +260,8 @@ class EWA_hpc(learner_hpc):
 
 class FTL_hpc(learner_hpc):
     
-    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None,p_sigma = None,redis=0):
-        super().__init__(source_path,loss_file,prediction_file,sigma)
+    def __init__(self,source_path=None,loss_file=None,prediction_file=None,sigma=None,p_sigma = None,redis=0, num_experts=None):
+        super().__init__(source_path,loss_file,prediction_file,sigma, num_experts)
         self.redis = redis
         self.p_sigma = p_sigma
     
@@ -279,8 +313,8 @@ class FTL_hpc(learner_hpc):
     
 class RWM_hpc(learner_hpc):
     
-    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
-        super().__init__(source_path,loss_file,prediction_file,sigma)
+    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0, num_experts=None):
+        super().__init__(source_path,loss_file,prediction_file,sigma, num_experts)
         self.learning_rate = learning_rate
         self.redis = redis
     
@@ -351,7 +385,7 @@ class RWM_hpc(learner_hpc):
                 l = self.redist_loss(loss)
             else:
                 l = loss
-         
+                
             # add to W matrix
             W.append(w)
             

@@ -24,7 +24,7 @@ y_test = np.array(pd.read_csv("/Users/yitongcai/Coding/data/xgb_test_{}.csv".for
 output = None
 
 # create a online learner calculator
-redis = 0
+redis = 1
 learning_rate = 0.5
 OL_name= "RWM"
 learner = RWM_hpc(source_path = source_path,
@@ -57,14 +57,6 @@ names = learner.model_names
 fig = plot_weight((W.T),names, title = OL_name+"  "+names[lead_expert[-1]]+"  "+str(redis)+"  "+str(sigma)
 #         +" with threshold"
          , output_path = output)
-
-
-
-#from matplotlib.backends.backend_pdf import PdfPages
-#pdf_pages = PdfPages('/Users/yitongcai/Graduate/NYU研究生/3rd Semsester/Project & Presentation/fig.pdf')
-
-#pdf_pages.savefig(fig2)
-
 
 
 

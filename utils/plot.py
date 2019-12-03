@@ -98,3 +98,28 @@ def plot_choose_right_expert(sigmas,percents,title=None,size = (12,4),output_pat
         
     return fig
 
+def plot_random_grid(num_of_experts, algo_abs_loss, title=None,size = (12,4),output_path = None):
+    '''
+    Plot algorithm absolute loss over number of exeprts for grid/random serch for comparison
+    
+    Input: num_of_experts: a list of different number of experts used
+           algo_abs_loss: a list of algorithm absolute loss 
+           size: plot size 
+           output_path: string, a path to output file if want plot to be saved
+    '''
+    
+    fig = plt.figure(figsize = size)
+    _ = plt.plot(num_of_experts, algo_abs_loss, '-o')
+
+    plt.xlabel('Number of Exeprts')
+    plt.ylabel('Algorithm Absolute Loss')
+    
+    if title is not None:
+        plt.title(title)
+    
+    if output_path is not None:
+        plt.savefig(output_path)
+    else:
+        plt.show()
+        
+    return fig
