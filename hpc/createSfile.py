@@ -12,7 +12,7 @@ import os
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
-tpn=50 #task per node
+tpn=10 #task per node
 cpt=1 #cpu per task
 file=open('run-py.s','w')
 file.write(f'#!/bin/bash \n\
@@ -41,27 +41,79 @@ test_data_path = data_dir+'xgb_test_'
 
 
 sigmas = [0,5,20]
+points_grid=1000
 
-modelName='LR'
 alphas=[0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
 l1_ratio=np.arange(0.0, 1.0, 0.1)
-#gammas = GP(-15,3,9).exp()
-#C = GP(-5,15,10).exp()
+gammas = GP(-15,3,9).exp()
+Cs = GP(-5,15,10).exp()
+
+for gamma in gammas:
+    for C in Cs:
+        for sigma in sigmas:
+            read_train=train_data_path+str(sigma)+'.csv'
+            read_test=test_data_path+str(sigma)+'.csv'
+            output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
+            
+# =============================================================================
+#             if not os.path.exists(output):
+#                 os.makedirs(output)
+#             
+# =============================================================================
+            file.write(f'srun -N 1 -n 1 python3 select_expert.py SVR '+ 'rbf,{},{} {} {} {}'.format(gamma,C,read_train,read_test,output) +' & \n')
 
 for alpha in alphas:
     for l1 in l1_ratio:
         for sigma in sigmas:
             read_train=train_data_path+str(sigma)+'.csv'
             read_test=test_data_path+str(sigma)+'.csv'
-            output=output_dir+str(sigma)+'/'
+            output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
             
-            if not os.path.exists(output):
-                os.makedirs(output)
-            
-            file.write(f'\
-    srun -N 1 -n 1 python3 select_expert.py '+modelName+' '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
+            file.write(f'\srun -N 1 -n 1 python3 select_expert.py LR '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
 
+n_estimators=[1,2,3]
+max_depth=[1,2,3]
+min_samples_split=[1,2,3]
+min_samples_leaf=[1,2,3]
+max_features=['auto', 'sqrt']
 
+for n in n_estimators:
+    for depth in max_depth:
+        for split in min_samples_split:
+            for leaf in min_samples_leaf:
+                for feature in max_features:
+                    for sigma in sigmas:
+                        read_train=train_data_path+str(sigma)+'.csv'
+                        read_test=test_data_path+str(sigma)+'.csv'
+                        output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
+                                                
+                        file.write(f'srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} {} {} {}'.format(n, depth, split, leaf, feature,read_train,read_test,output) +' & \n')            
+
+max_depth=[1,2,3]
+learning_rate=[1,2,3]
+n_estimators=[1,2,3]
+subsample=[1,2,3]
+colsample_bytree=[1,2,3]
+gamma2=[1,3]
+alpha2=[1,3]
+lambd=[1,3]
+  
+for n in n_estimators:
+    for depth in max_depth:
+        for l in learning_rate:
+            for sample in subsample:
+                for bytree in colsample_bytree:
+                    for gamma in gamma2:
+                        for alpha in alpha2:
+                            for lamb in lambd:
+                                for sigma in sigmas:
+                                    read_train=train_data_path+str(sigma)+'.csv'
+                                    read_test=test_data_path+str(sigma)+'.csv'
+                                    output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
+                                                            
+                                    file.write(f'srun -N 1 -n 1 python3 select_expert.py XGBoost '+ '{},{},{},{},{},{},{},{} {} {} {}'.format(depth, l,n,sample,bytree, gamma,alpha,lamb,read_train,read_test,output) +' & \n')            
+
+               
 file.write('wait ')
 
 file.close()
