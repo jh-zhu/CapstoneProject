@@ -118,7 +118,9 @@ class SVR(MLmodels):
         :param kernel: ’rbf’,‘linear’, ‘poly’, ‘sigmoid’, ‘precomputed’ 
         :param gamma: kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’
                       measure how exactly fit the training data set (higher means more exact)
+                       2^−15 , 2^−13 , . . . , 2^3 
         :param C: penalty parameter C of the error term
+                    2^−5 , 2^ −3 , . . . , 2^15
         '''
         super().__init__()
         self.kernel = kernel
