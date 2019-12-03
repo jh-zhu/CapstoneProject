@@ -38,3 +38,7 @@ class generateParameter(object):
         '''
         return np.random.uniform(self.begin,self.end,self.n)
     
+    def exp(self):
+        
+        return [2**int(i) for i in np.arange(self.begin,self.end,(self.end-self.begin)/self.n)]
+    

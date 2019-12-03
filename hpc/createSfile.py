@@ -6,7 +6,7 @@ Created on Sat Nov  9 10:38:23 2019
 @author: mingmingyu
 """
 import numpy as np
-from generateParameter import generateParameter as GP
+from hpc.generateParameter import generateParameter as GP
 from core.fileManager import fileName
 import os
 
@@ -40,10 +40,12 @@ train_data_path = data_dir+'xgb_train_'
 test_data_path = data_dir+'xgb_test_'
 
 
-sigmas = [1,5,10,15,20]
+sigmas = [0,5,20]
 
-gammas = GP(0.01,0.05,5).grid()
-C = GP(0.1,0.5,5).grid()
+modelName='SVR'
+kernel = 'rbf'
+gammas = GP(-15,3,9).exp()
+C = GP(-5,15,10).exp()
 
 for gamma in gammas:
     for c in C:
@@ -56,7 +58,7 @@ for gamma in gammas:
                 os.makedirs(output)
             
             file.write(f'\
-    srun -N 1 -n 1 python3 select_expert.py '+'SVR linear,{},{} {} {} {}'.format(gamma,c,read_train,read_test,output) +' & \n')
+    srun -N 1 -n 1 python3 select_expert.py '+modelName+' '+kernel+',{},{} {} {} {}'.format(gamma,c,read_train,read_test,output) +' & \n')
 
 
 file.write('wait ')

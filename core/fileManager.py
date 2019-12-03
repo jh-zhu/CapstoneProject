@@ -7,6 +7,7 @@ Created on Tue Nov 19 14:14:58 2019
 """
 import pandas as pd
 import os, shutil
+import numpy as np
 '''
 srun python3 /scratch/mmy272/test/CapstoneProject/core/fileManager.py after all the computation is done.
 '''
@@ -28,20 +29,30 @@ class fileName(object):
             2. loss.xlsx has n number of sheets, n=# sigma, in each sheet,
             there are m columns, m=# experts
         '''
-        prediction = self.output_combine+ 'prediction.xlsx'
-        loss = self.output_combine + 'loss.xlsx'
+        prediction = self.output_combine+ 'prediction/'
+        loss = self.output_combine + 'loss/'
         
-        writer_pred = pd.ExcelWriter(prediction, engine='xlsxwriter')
-        writer_loss = pd.ExcelWriter(loss, engine='xlsxwriter')
+        if not os.path.exists(prediction):
+            os.makedirs(prediction)
+        if not os.path.exists(loss):
+            os.makedirs(loss)
         
         for sigma in os.listdir(self.output_folder):
-            for result in os.listdir(self.output_folder+sigma):
-                df=pd.read_csv(self.output_folder+sigma+'/'+result,header=None) 
-                df_prediction=pd.DataFrame(df['prediction'],columns=[result])
-                df_prediction.to_excel(writer_pred, sheet_name=sigma)
-                
-                df_loss=pd.DataFrame(df['loss'],columns=[result])
-                df_loss.to_excel(writer_loss, sheet_name=sigma)
+            if sigma=='.DS_Store':
+                continue
+            df_prediction = pd.DataFrame()
+            df_loss = pd.DataFrame()
+            
+            for result in os.listdir(self.output_folder+sigma):  
+                if result=='.DS_Store':
+                    continue
+                df=pd.read_csv(self.output_folder+sigma+'/'+result)
+                df_prediction[result] = np.array(df['prediction'])
+                df_loss[result] = np.array(df['loss'])
+            
+            
+            df_prediction.to_csv(prediction+sigma+'.csv',index=False)
+            df_loss.to_csv(loss+sigma+'.csv',index=False)
                 
     def clean(self):
         '''
@@ -61,8 +72,12 @@ class fileName(object):
 if __name__ == '__main__':
     
     
-    file=fileName()
-    file.combine_files()
-    file.clean()
-    
+# =============================================================================
+#     file=fileName()
+#     #file.output_folder = '/Users/mingmingyu/Downloads/output/'
+#     #file.output_combine = '/Users/mingmingyu/Downloads/output_combine/'
+#     file.combine_files()
+#     file.clean()
+#     
+# =============================================================================
     
