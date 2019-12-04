@@ -186,9 +186,9 @@ class XGBoost(MLmodels):
         '''
         
         super().__init__()
-        self.learning_rate = int(learning_rate)
+        self.learning_rate = learning_rate
         self.max_depth = int(max_depth) 
-        self.n_estimators = n_estimators
+        self.n_estimators = int(n_estimators)
         self.subsample = subsample
         self.colsample_bytree = colsample_bytree
         self.gamma = gamma
