@@ -223,8 +223,8 @@ class learner_hpc(object):
 
 class EWA_hpc(learner_hpc):
     
-    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0, num_experts=None):
-        super().__init__(source_path,loss_file,prediction_file,sigma, num_experts)
+    def __init__(self,learning_rate,source_path=None,loss_file=None,prediction_file=None,sigma=None,redis=0):
+        super().__init__(source_path,loss_file,prediction_file,sigma)
         self.learning_rate = learning_rate
         self.redis = redis
     
@@ -235,24 +235,28 @@ class EWA_hpc(learner_hpc):
         
         n = len(self.model_names)
 
+        # losses at this round
+        l = np.zeros(n,dtype=int)
         # weight matrix W 
         W = []
-        # initial weight
-        w = np.array([1/n]*n)
-        W.append(w)
         
         
         for i,loss in enumerate(losses):
+        
+            if i==0:
+                # first step 
+                w = np.array([1/n]*n)
+            else:
+                # update current weight
+                w = w * np.exp(-self.learning_rate * l)
+                # renormalize weight
+                w = self.normalize_weight(w)
+                
             if self.redis > 0:
                 l = self.redist_loss(loss)
             else:
                 l = loss
-            
-            # update current weight
-            w = w * np.exp(-self.learning_rate * l)
-            # renormalize weight
-            w = self.normalize_weight(w)
-            
+                
             # add to W matrix
             W.append(w)
             
