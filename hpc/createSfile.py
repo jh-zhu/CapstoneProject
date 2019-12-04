@@ -39,7 +39,7 @@ output_dir = filename.output_folder
 train_data_path = data_dir+'xgb_train_'
 test_data_path = data_dir+'xgb_test_'
 
-sigmas = [0,5,20,100]
+sigmas = [5]
 points_grid=10000
 
 gammas = GP(-15,3,10).exp()
@@ -67,7 +67,7 @@ for alpha in alphas:
             read_test=test_data_path+str(sigma)+'.csv'
             output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
             
-            file.write(f'\srun -N 1 -n 1 python3 select_expert.py LR '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
+            file.write(f'srun -N 1 -n 1 python3 select_expert.py LR '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
 
 n_estimators=[int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
 max_depth=[int(x) for x in np.linspace(10, 110, num = 11)]
