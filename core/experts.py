@@ -147,8 +147,8 @@ class RandomForest(MLmodels):
         '''
         
         super().__init__()
-        self.n_estimators = n_estimators
-        self.max_depth = max_depth
+        self.n_estimators = int(n_estimators)
+        self.max_depth = int(max_depth)
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
         self.max_features = max_features
@@ -186,8 +186,8 @@ class XGBoost(MLmodels):
         '''
         
         super().__init__()
-        self.learning_rate = learning_rate
-        self.max_depth = max_depth 
+        self.learning_rate = int(learning_rate)
+        self.max_depth = int(max_depth) 
         self.n_estimators = n_estimators
         self.subsample = subsample
         self.colsample_bytree = colsample_bytree
