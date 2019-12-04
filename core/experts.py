@@ -149,8 +149,8 @@ class RandomForest(MLmodels):
         super().__init__()
         self.n_estimators = int(n_estimators)
         self.max_depth = int(max_depth)
-        self.min_samples_split = min_samples_split
-        self.min_samples_leaf = min_samples_leaf
+        self.min_samples_split = int(min_samples_split)
+        self.min_samples_leaf = int(min_samples_leaf)
         self.max_features = max_features
         self.name = 'RF({},{},{},{}.{})'.format(self.n_estimators, self.max_depth, self.min_samples_split, 
                                                 self.min_samples_leaf, self.max_features)
