@@ -13,6 +13,7 @@ import pandas as pd
 import sys
 import os
 
+
 '''
 This file is to be used on hpc
 
@@ -94,7 +95,10 @@ if __name__ == '__main__':
     
     '''
     # test expert
-    model_parameters = sys.argv[1:-1]
+    file=sys.argv[1]
+    File_object = open(file,'r')
+    
+    model_parameters = File_object.readline().split(' ')
     test_expert = test_expert(*model_parameters)
     losses, preds = test_expert.train_test()
     
@@ -113,13 +117,7 @@ if __name__ == '__main__':
 
 
 
-   
-#    def RandomCreate(self, **kwargs):
-#        ''' Use the random grid to search for best hyperparameters'''
-#        random_range = {k:v for k, v in kwargs.items()}
-#        
-             
-             
+
              
              
              
