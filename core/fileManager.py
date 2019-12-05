@@ -17,7 +17,8 @@ class fileName(object):
     def __init__(self):
         self.data_folder = '/scratch/mmy272/test/data/'
         self.output_folder = '/scratch/mmy272/test/output/'
-        self.output_combine='/scratch/mmy272/test/output_combine/'
+        self.output_folder2 = '/scratch/mmy272/test/output2/'
+        #self.output_combine='/scratch/mmy272/test/output_combine/'
         self.scripts='/scratch/mmy272/test/scripts/'
         
     def combine_files(self):
