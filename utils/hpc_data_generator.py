@@ -10,6 +10,10 @@ Created on Thu Dec  5 11:26:04 2019
 import pandas as pd 
 import numpy as np
 
+import os
+
+os.mkdir('scratch/mmy272/test/data/')
+
 # number of rounds
 N = 100
 rounds = np.array([i+1 for i in range(N)])
@@ -22,8 +26,8 @@ xgb_model_test = XGBoost(*xgb_hyperparameter)
 
 
 
-train_file = '/Scratch/mmy272/test/CapstoneProject/init_data/train.csv'
-test_file = '/Scratch/mmy272/test/CapstoneProject/init_data/test.csv'
+train_file = '/scratch/mmy272/test/CapstoneProject/init_data/train.csv'
+test_file = '/scratch/mmy272/test/CapstoneProject/init_data/test.csv'
 df_train = pd.read_csv(train_file,header=None)
 df_test = pd.read_csv(test_file,header=None)
 
@@ -38,6 +42,7 @@ xgb_model_train.train(X_train,y_train)
 xgb_model_test.train(X_test,y_test)
 
 for _round in rounds:
+    os.mkdir('scratch/mmy272/test/data/round_{}'.format(_round))
     for sigma in sigmas:
         y_train_hat = xgb_model_train.predict_batch(X_train) + np.random.normal(0,sigma,l)
         y_test_hat = xgb_model_test.predict_batch(X_test) + np.random.normal(0,sigma,l)
@@ -49,4 +54,4 @@ for _round in rounds:
         df_test_out.iloc[:,0] = y_test_hat
         
         df_train_out.to_csv('/scratch/mmy272/test/data/round_{}/xgb_train_{}.csv'.format(_round,sigma),index=False,header=False)
-        df_test_out.to_csv('/Users/Jiahao/Downloads/round_{}/xgb_test_{}.csv'.format(_round,sigma),index=False,header=False)
+        df_test_out.to_csv('/scratch/mmy272/test/data/round_{}/xgb_test_{}.csv'.format(_round,sigma),index=False,header=False)
