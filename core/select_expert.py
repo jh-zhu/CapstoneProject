@@ -94,18 +94,34 @@ if __name__ == '__main__':
                   test data path, output directory path
     
     '''
+    model_name = sys.argv[1]
+    
+    model_parameters_str = sys.argv[2]
+    model_parameters = model_parameters_str.split(',')
+    
+    file = sys.argv[3]
+    file_obj = open(file,'r')
+    line = file_obj.readline().split(',')
+    train_data = line[0]
+    test_data = line[1]
+    output_directory = line[2]
+    file_obj.close()
+    
+    
+    '''
     # test expert
     file=sys.argv[1]
     File_object = open(file,'r')
     line=File_object.readline().split(' ')
     model_parameters = line[:-1]
+    '''
     
-    test_expert = test_expert(*model_parameters)
+
+    test_expert = test_expert(model_name,model_parameters,train_data,test_data)
     losses, preds = test_expert.train_test()
     
     # write out results
-    output_directory = line[-1]
-    file_name = model_parameters[0] + '_' + model_parameters[1] + '.csv'
+    file_name = model_name + '_' + model_parameters_str + '.csv'
     output_file_path = os.path.join(output_directory,file_name)
     
     columns = ['prediction','loss']
