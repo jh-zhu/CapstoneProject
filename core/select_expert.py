@@ -5,13 +5,13 @@ Created on Mon Oct 28 01:42:35 2019
 
 @author: yitongcai,Jiahao
 """
+import os
+os.chdir('/scratch/mmy272/test/CapstoneProject/')
 
-from experts import *
-from data_generator import *
+from core.experts import *
 import numpy as np
 import pandas as pd
 import sys
-import os
 
 
 '''
@@ -97,13 +97,14 @@ if __name__ == '__main__':
     # test expert
     file=sys.argv[1]
     File_object = open(file,'r')
+    line=File_object.readline().split(' ')
+    model_parameters = line[:-1]
     
-    model_parameters = File_object.readline().split(' ')
     test_expert = test_expert(*model_parameters)
     losses, preds = test_expert.train_test()
     
     # write out results
-    output_directory = sys.argv[-1]
+    output_directory = line[-1]
     file_name = model_parameters[0] + '_' + model_parameters[1] + '.csv'
     output_file_path = os.path.join(output_directory,file_name)
     
