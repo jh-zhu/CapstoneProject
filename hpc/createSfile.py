@@ -96,7 +96,7 @@ colsample_bytree=GP(0.5,1,4).grid()
 gamma2=[0.01,1]
 alpha2=[0.0,1]
 lambd=[0.0,5]
-  
+ 
 for n in n_estimators2:
     for depth in max_depth2:
         for l in learning_rate:

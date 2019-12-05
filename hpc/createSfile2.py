@@ -13,11 +13,11 @@ Created on Sat Nov  9 10:38:23 2019
 
 @author: mingmingyu
 """
-import numpy as np
-from hpc.generateParameter import *
+from hpc.generateParameter import gen_params, gen_params_random
 #generateParameter as GP
 from core.fileManager import fileName
 import os
+import random,itertools  
 
 n_nodes=50 #number of node
 n_tasks=50 #number of tasks
@@ -60,10 +60,10 @@ kernels = ['rbf', 'linear']
 #Cs = GP(-3,4,4).grid_log()
 #epsilons = GP(-6,2,6).grid_log(base=2)
 
+'''GRID SEARCH'''
 nums = [4, 4, 6]
 gammas, Cs, epsilons = gen_params(nums, "SVR")
 
-'''GRID SEARCH'''
 for kernel in kernels:
     for gamma in gammas:
         for C in Cs:
@@ -79,7 +79,9 @@ for kernel in kernels:
                     file.write(f'srun -N 1 -n 1 python3 select_expert.py SVR '+ '{},{},{},{} {} {} {}'.format(kernel, gamma,C, epsilon, read_train,read_test,output) +' & \n')
 
 '''RANDOM SEARCH'''
-import random,itertools   
+nums = [4, 4, 6]
+gammas, Cs, epsilons = gen_params_random(nums, "SVR")
+ 
 num_experts = len(kernels)*len(gammas)*len(Cs)*len(epsilons)
 random_params = random.sample(set(itertools.product(kernels, gammas, Cs, epsilons)), num_experts)
 
@@ -104,10 +106,10 @@ for params in random_params:
 #alphas=GP(-4,2,5).grid_log()
 #l1s=GP(0,1,7).grid_lin()
 
+'''GRID SEARCH'''
 nums = [5, 7]
 alphas,l1s = gen_params(nums, "LR")
 
-'''GRID SEARCH'''
 for alpha in alphas:
     for l1 in l1s:
         for sigma in sigmas:
@@ -118,6 +120,9 @@ for alpha in alphas:
             file.write(f'srun -N 1 -n 1 python3 select_expert.py LR '+'{},{} {} {} {}'.format(alpha,l1,read_train,read_test,output) +' & \n')
 
 '''RANDOM SEARCH'''
+nums = [5, 7]
+alphas,l1s = gen_params_random(nums, "LR")
+
 num_experts = len(alphas)*len(l1s)
 random_params = random.sample(set(itertools.product(alphas,l1s)), num_experts)
 
@@ -140,12 +145,12 @@ for params in random_params:
 #max_depth = GP(2,15,5).grid_lin("int")
 #min_samples_split = GP(2,15,2).grid_lin("int")
 #min_samples_leaf = GP(1,10,2).grid_lin("int")
-   
+
+'''GRID SEARCH'''  
 nums = [4, 5, 2, 2]
 n_estimators, max_depth, min_samples_split, min_samples_leaf = gen_params(nums, "RF")
 max_features = ['auto', 'sqrt']
 
-'''GRID SEARCH'''
 for n in n_estimators:
     for depth in max_depth:
         for split in min_samples_split:
@@ -159,6 +164,10 @@ for n in n_estimators:
                         file.write(f'srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} {} {} {}'.format(n, depth, split, leaf, feature,read_train,read_test,output) +' & \n')            
 
 '''RANDOM SEARCH'''
+nums = [4, 5, 2, 2]
+n_estimators, max_depth, min_samples_split, min_samples_leaf = gen_params_random(nums, "RF")
+max_features = ['auto', 'sqrt']
+
 num_experts = len(max_features)*len(n_estimators)*len(max_depth)*len(min_samples_split)*len(min_samples_leaf)
 random_params = random.sample(set(itertools.product(n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)), num_experts)
 
@@ -177,10 +186,11 @@ for params in random_params:
     XGBoost
    *********************************************************************************'''     
 # number: 96
+   
+'''GRID SEARCH'''
 nums = [2, 3, 2, 2, 2, 2, 1, 1]
 n_estimators, max_depth, learning_rate, subsample, colsample_bytree, gamma, alpha, lambd = gen_params(nums, "XGBoost")
   
-'''GRID SEARCH'''
 for n in n_estimators:
     for depth in max_depth:
         for l in learning_rate:
@@ -198,6 +208,8 @@ for n in n_estimators:
 
 
 '''RANDOM SEARCH'''
+nums = [2, 3, 2, 2, 2, 2, 1, 1]
+n_estimators, max_depth, learning_rate, subsample, colsample_bytree, gamma, alpha, lambd = gen_params_random(nums, "XGBoost")
 num_experts = len(n_estimators)*len(max_depth)*len(learning_rate)*len(subsample)*len(colsample_bytree)*len(gamma)*len(alpha)*len(lambd)
 random_params = random.sample(set(itertools.product(n_estimators, max_depth, learning_rate, subsample,
                                                     colsample_bytree, gamma, alpha, lambd)), num_experts)
