@@ -12,7 +12,7 @@ import numpy as np
 
 import os
 
-os.mkdir('scratch/mmy272/test/data/')
+os.makedirs('scratch/mmy272/test/data/')
 
 # number of rounds
 N = 100
@@ -42,7 +42,7 @@ xgb_model_train.train(X_train,y_train)
 xgb_model_test.train(X_test,y_test)
 
 for _round in rounds:
-    os.mkdir('scratch/mmy272/test/data/round_{}'.format(_round))
+    os.makedirs('scratch/mmy272/test/data/round_{}'.format(_round))
     for sigma in sigmas:
         y_train_hat = xgb_model_train.predict_batch(X_train) + np.random.normal(0,sigma,l)
         y_test_hat = xgb_model_test.predict_batch(X_test) + np.random.normal(0,sigma,l)
