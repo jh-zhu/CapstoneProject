@@ -87,5 +87,19 @@ fig = plot_random_grid(num_of_experts, algo_abs_loss_random,
 #                       +" with threshold"
                        )
             
-            
-            
+import random
+import itertools          
+max_depth2=[int(x) for x in np.linspace(start = 3, stop = 7, num = 4)]
+learning_rate=np.linspace(0.01,0.2,4)
+n_estimators2=[100,250,500,1000]
+subsample=np.linspace(0.5,1,4)
+colsample_bytree=np.linspace(0.5,1,4)
+gamma2=[0.01,1]
+alpha2=[0.0,1]
+lambd=[0.0,5] 
+
+samples = random.sample(set(itertools.product(max_depth2, learning_rate, n_estimators2,
+                                          subsample, colsample_bytree, gamma2, 
+                                          alpha2, lambd)), 10)
+print(samples)
+          

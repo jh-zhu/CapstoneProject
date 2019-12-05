@@ -23,7 +23,7 @@ calculating regret and percent of time choosing the correct expert
 This example is based on the fact that you have already calculate
 expert losses and predictions using testing data.
 
-"""i
+"""
 
 #source_path = '/Users/yitongcai/Coding/output/{}/'.format(sigma)
 #y_test = np.array(pd.read_csv("/Users/yitongcai/Coding/data/xgb_test_{}.csv".format(sigma), header=None).iloc[:,0])

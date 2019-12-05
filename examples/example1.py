@@ -19,9 +19,11 @@ In this example, we show how to calculate weight change of experts over time.
 # first we build an expert class that our algorithm wants to use
 # with model hyper-parameter
 # choose models from core.experts
-models = [SVR('linear',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(0.001,0.1),
-          RandomForest(200,3,5,2,'auto'),XGBoost(3, 0.3, 200, 0.6, 0.6, 
-                 0.1, 0.1, 0.1), AR(2)]
+models = [
+#          SVR('linear',0.01,0.5),SVR('linear',0.03,0.1),LinearRegression(0.001,0.1),
+#          RandomForest(200,3,5,2,'auto'),AR(2), 
+          XGBoost(max_depth=3, learning_rate=0.2, n_estimators=100, subsample=0.7, 
+                  colsample_bytree=0.5, gamma=1, alpha=1, lambd=5)]
 
           
 # then we choose an online learning algorithm we want to use
@@ -54,9 +56,9 @@ tester = testOL(learner,X_test,y_test)
 
 # we can get the weight change matrix W from tester
 W = tester.compute_weight()
-
-# plot and show results using plot utilities
-
+#
+## plot and show results using plot utilities
+#
 model_names = [model.get_name() for model in models]
 size = (12,4)
 title = 'expert weights change'

@@ -110,10 +110,7 @@ class LinearRegression(MLmodels):
      
 
 class SVR(MLmodels):
-    '''
-    degree for 'poly'(default=3)
-    epsilon=0.1, verbose=False'''
-    def __init__(self, kernel, gamma, C, epsilon=0.1):
+    def __init__(self, kernel, gamma, C, epsilon):
         '''
         :param kernel: ’rbf’,‘linear’, ‘poly’, ‘sigmoid’, ‘precomputed’ 
         :param gamma: kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’
@@ -127,7 +124,7 @@ class SVR(MLmodels):
         self.gamma = gamma
         self.C = C
         self.epsilon = epsilon
-        self.name = 'SVR({},{},{})'.format(self.kernel, self.gamma, self.C)
+        self.name = 'SVR({},{},{},{})'.format(self.kernel, self.gamma, self.C, self.epsilon)
         self.model = svm.SVR(kernel=self.kernel, C=self.C, gamma=self.gamma, epsilon=self.epsilon)
 
 
@@ -137,7 +134,6 @@ class RandomForest(MLmodels):
         :param n_estimators: number of trees 
                             [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
         :param max_depth: maximum number of levels in tree
-                         [int(x) for x in np.linspace(10, 110, num = 11)]
         :param min_samples_split: minimum number of samples required to split a node
                                   [2, 5, 10]
         :param min_samples_leaf: minimum number of samples required at each leaf node
