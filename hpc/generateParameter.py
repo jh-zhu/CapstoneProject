@@ -46,14 +46,14 @@ def gen_params(nums, expert):
         
 def gen_params_random(nums, expert):
     if expert == "LR" and len(nums)==2:
-        alphas=generateParameter(-4,2,nums[0]).random()
+        alphas=generateParameter(1e-4,1e2,nums[0]).random()
         l1s=generateParameter(0,1,nums[1]).random()
         return alphas,l1s
     
     elif expert == "SVR" and len(nums)==3:
-        gammas = generateParameter(-4,3,nums[0]).random()
-        Cs = generateParameter(-3,4,nums[1]).random()
-        epsilons = generateParameter(-6,2,nums[2]).random(base=2)
+        gammas = generateParameter(1e-4,1e3,nums[0]).random()
+        Cs = generateParameter(1e-3,1e4,nums[1]).random()
+        epsilons = generateParameter(2**(-6),2**2,nums[2]).random()
         return gammas, Cs, epsilons
 
     elif expert == "RF" and len(nums)==4:
@@ -65,11 +65,11 @@ def gen_params_random(nums, expert):
 
     elif expert == "XGBoost" and len(nums)==8:
         max_depth=generateParameter(2,4,nums[0]).random("int")
-        learning_rate=generateParameter(-2,-1,nums[1]).random()
+        learning_rate=generateParameter(1e-2,1e-1,nums[1]).random()
         n_estimators = generateParameter(100,800,nums[2]).random("int")
         subsample = generateParameter(0.75,1,nums[3]).random()
         colsample_bytree = generateParameter(0.75,1,nums[4]).random()
-        gamma = generateParameter(-2,0,nums[5]).random()
+        gamma = generateParameter(1e-2,1,nums[5]).random()
 #        alpha =  generateParameter(0.2,0.6,nums[6]).random()
 #        lambd = generateParameter(0.2,0.6,nums[7]).random()
         alpha, lambd = 0, 0.5
