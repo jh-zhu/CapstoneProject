@@ -59,7 +59,7 @@ for exp_num,value in nums.items():
     alphas, l1s = gen_params(nums, "LR")
     for alpha in alphas:
         for l1 in l1s:        
-            file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} '.format(alpha,l1) +'$SLURM_ARRAY_TASK_ID.txt & \n')
+            file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} G'.format(alpha,l1) +str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')
 
 
 for exp_num,value in nums.items():
@@ -70,7 +70,7 @@ for exp_num,value in nums.items():
         alpha,l1 = params
         for alpha in alphas:
             for l1 in l1s:        
-                file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} '.format(alpha,l1) +'$SLURM_ARRAY_TASK_ID.txt & \n')
+                file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} R'.format(alpha,l1) +str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')
 
 
 
@@ -84,7 +84,7 @@ for exp_num,value in nums.items():
             for split in min_samples_split:
                 for leaf in min_samples_leaf:
                     for feature in max_features:
-                        file.write('srun -N 1 -n 1 python3 select_expert.py RF {},{},{},{},{} '.format(n, depth, split, leaf, feature) +'$SLURM_ARRAY_TASK_ID.txt & \n')            
+                        file.write('srun -N 1 -n 1 python3 select_expert.py RF {},{},{},{},{} G'.format(n, depth, split, leaf, feature)+str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')           
 
 
 for exp_num,value in nums.items():
@@ -99,7 +99,7 @@ for exp_num,value in nums.items():
             read_test=test_data_path+str(sigma)+'.csv'
             output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
                                     
-            file.write(f'srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} {} {} {}'.format(n, depth, split, leaf, feature,read_train,read_test,output) +' & \n')            
+            file.write('srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} {} {} {} R'.format(n, depth, split, leaf, feature,read_train,read_test,output)+str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')      
 
         
 # =============================================================================
