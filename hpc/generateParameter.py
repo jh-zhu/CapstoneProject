@@ -37,7 +37,7 @@ def gen_params(nums, expert):
         gamma = generateParameter(-2,0,nums[5]).grid_log()
 #        alpha =  generateParameter(0.2,0.6,nums[6]).grid_lin()
 #        lambd = generateParameter(0.2,0.6,nums[7]).grid_lin()
-        alpha, lambd = 0, 0.5
+        alpha, lambd = [0], [0.5]
         return n_estimators, max_depth, learning_rate, subsample, colsample_bytree, gamma, alpha, lambd
     
     else:
