@@ -40,17 +40,17 @@ for exp_num,value in nums.items():
         for gamma in gammas:
             for C in Cs:
                 for epsilon in epsilons:
-                    file.write('srun -N 1 -n 1 python3 select_expert.py SVR {},{},{},{} G'.format(kernel, gamma,C, epsilon) +str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')
+                    file.write('srun -N 1 -n 1 python3 select_expert.py SVR {},{},{},{} G '.format(kernel, gamma,C, epsilon) +str(exp_num)+' $SLURM_ARRAY_TASK_ID.txt & \n')
 
 
 
 for exp_num,value in nums.items():
     gammas, Cs, epsilons = gen_params_random(value, "SVR")
     num_experts = len(kernels)*len(gammas)*len(Cs)*len(epsilons)
-    random_params = random.sample(set(itertools.product(kernels, gammas, Cs, epsilons)), num_experts)
+    random_params = random.sample(list(itertools.product(kernels, gammas, Cs, epsilons)), num_experts)
     for params in random_params:
         kernel, gamma,C, epsilon = params
-        file.write('srun -N 1 -n 1 python3 select_expert.py SVR {},{},{},{} R'.format(kernel, gamma,C, epsilon)+str(exp_num) +'$SLURM_ARRAY_TASK_ID.txt & \n')
+        file.write('srun -N 1 -n 1 python3 select_expert.py SVR {},{},{},{} R '.format(kernel, gamma,C, epsilon)+str(exp_num) +' $SLURM_ARRAY_TASK_ID.txt & \n')
 
 
 
@@ -59,18 +59,18 @@ for exp_num,value in nums.items():
     alphas, l1s = gen_params(nums, "LR")
     for alpha in alphas:
         for l1 in l1s:        
-            file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} G'.format(alpha,l1) +str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')
+            file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} G '.format(alpha,l1) +str(exp_num)+' $SLURM_ARRAY_TASK_ID.txt & \n')
 
 
 for exp_num,value in nums.items():
     alphas,l1s = gen_params_random(nums, "LR")
     num_experts = len(alphas)*len(l1s)
-    random_params = random.sample(set(itertools.product(alphas,l1s)), num_experts)
+    random_params = random.sample(list(itertools.product(alphas,l1s)), num_experts)
     for params in random_params:
         alpha,l1 = params
         for alpha in alphas:
             for l1 in l1s:        
-                file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} R'.format(alpha,l1) +str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')
+                file.write('srun -N 1 -n 1 python3 select_expert.py LR {},{} R '.format(alpha,l1) +str(exp_num)+' $SLURM_ARRAY_TASK_ID.txt & \n')
 
 
 
@@ -84,22 +84,17 @@ for exp_num,value in nums.items():
             for split in min_samples_split:
                 for leaf in min_samples_leaf:
                     for feature in max_features:
-                        file.write('srun -N 1 -n 1 python3 select_expert.py RF {},{},{},{},{} G'.format(n, depth, split, leaf, feature)+str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')           
+                        file.write('srun -N 1 -n 1 python3 select_expert.py RF {},{},{},{},{} G '.format(n, depth, split, leaf, feature)+str(exp_num)+' $SLURM_ARRAY_TASK_ID.txt & \n')           
 
 
 for exp_num,value in nums.items():
     n_estimators, max_depth, min_samples_split, min_samples_leaf = gen_params_random(nums, "RF")
     max_features = ['auto', 'sqrt']
     num_experts = len(max_features)*len(n_estimators)*len(max_depth)*len(min_samples_split)*len(min_samples_leaf)
-    random_params = random.sample(set(itertools.product(n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)), num_experts)
+    random_params = random.sample(list(itertools.product(n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)), num_experts)
     for params in random_params:
-        n, depth, split, leaf, feature = params
-        for sigma in sigmas:
-            read_train=train_data_path+str(sigma)+'.csv'
-            read_test=test_data_path+str(sigma)+'.csv'
-            output=output_dir+str(points_grid)+'/'+str(sigma)+'/'
-                                    
-            file.write('srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} {} {} {} R'.format(n, depth, split, leaf, feature,read_train,read_test,output)+str(exp_num)+'$SLURM_ARRAY_TASK_ID.txt & \n')      
+        n, depth, split, leaf, feature = params                           
+        file.write('srun -N 1 -n 1 python3 select_expert.py RF '+ '{},{},{},{},{} R '.format(n, depth, split, leaf, feature)+str(exp_num)+' $SLURM_ARRAY_TASK_ID.txt & \n')      
 
         
 # =============================================================================
