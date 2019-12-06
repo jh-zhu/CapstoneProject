@@ -110,7 +110,7 @@ if __name__ == '__main__':
     mode = sys.argv[3]
     
     # number of experts
-    n_experts = sys.argv[4]
+    n_experts = int(sys.argv[4])
     
     # file
     file = sys.argv[5]
@@ -129,7 +129,8 @@ if __name__ == '__main__':
     
     # write out results
     file_name = model_name + '_' + model_parameters + '.csv'
-    output_directory = '/scratch/mmy272/test/output2/{}/{}/'
+    output_directory = '/scratch/mmy272/test/output2/{}/{}/{}/'.format(_sigma,mode,n_experts)
+
     output_file_path = os.path.join(output_directory,file_name)
     
     columns = ['prediction','loss']
