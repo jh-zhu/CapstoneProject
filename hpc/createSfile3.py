@@ -18,14 +18,14 @@ file=open('/scratch/mmy272/test/main_script2/run.s','w')
 file.write(f'#!/bin/bash \n\
 #SBATCH --nodes={n_nodes} \n\
 #SBATCH --ntasks-per-node={tpn} \n\
-#SBATCH ----cpus-per-task=1 \n\
+#SBATCH --cpus-per-task=1 \n\
 #SBATCH --time=12:00:00 \n\
 #SBATCH --mem=16GB \n\
 #SBATCH --job-name=runPython \n\
 #SBATCH --error=expert_%A_%a.err \n\n\
 module purge \n\
 module load python3/intel/3.7.3 \n\n\
-cd /scratch/mmy272/test/scripts \n\
+cd /scratch/mmy272/test/scripts2 \n\
 ')
 
 ## run python tasks in cluster in parallel
