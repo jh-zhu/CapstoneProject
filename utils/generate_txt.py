@@ -16,6 +16,11 @@ n_rounds = [i+1 for i in range(N)]
 sigmas = [0,1,5,10,15,20]
 i = 1
 
+# generate folder
+for n in n_rounds:
+        os.mkdir('/scratch/mmy272/test/output/round_{}/'.format(n))
+        for sigma in sigmas:
+                os.mkdir('/scratch/mmy272/test/output/round_{}/{}/'.format(n,sigma))
 #output
 file_out_dir = '/scratch/mmy272/test/scripts/'
 i = 1
@@ -26,12 +31,8 @@ for n in n_rounds:
          f.write('/scratch/mmy272/test/data/round_{}/xgb_train_{}.csv,'.format(n,sigma))
          f.write('/scratch/mmy272/test/data/round_{}/xgb_test_{}.csv,'.format(n,sigma))
          
-         # creat folder if not exist
-         output_dir = '/scratch/mmy272/output/round_{}/sigma_{}/'.format(n,sigma)
          
-         
-         if not os.path.exists(output_dir):
-             os.mkdir(output_dir)
+         output_dir = '/scratch/mmy272/test/output/round_{}/{}/'.format(n,sigma)
          
          f.write(output_dir)
          f.close()

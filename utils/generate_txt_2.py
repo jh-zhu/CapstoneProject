@@ -17,6 +17,20 @@ file_out_dir = '/scratch/mmy272/test/scripts2/'
 #file_out_dir = '/Users/Jiahao/Desktop/scripts2/'
 i = 1
 
+import os
+
+sigmas = [1,5,10]
+mode = ['G','R']
+n_experts = [100,200,400,600,800]
+
+
+for sigma in sigmas:
+        os.mkdir('/scratch/mmy272/test/output2/{}/'.format(sigma))
+        for m in mode:
+                os.mkdir('/scratch/mmy272/test/output2/{}/{}/'.format(sigma,m))
+                for n in n_experts:
+                        os.mkdir('/scratch/mmy272/test/output2/{}/{}/{}/'.format(sigma,m,n))
+
 
 for sigma in sigmas:
      f = open(file_out_dir + '{}.txt'.format(i),'w')
