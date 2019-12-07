@@ -107,6 +107,8 @@ if __name__ == '__main__':
     output_directory = line[2]
     file_obj.close()
     
+    cd /scratch/mmy272/test/scripts
+srun -N 1 -n 1 python3 select_expert.py SVR rbf,0.0001,0.001,0.0156 1.txt &
     
     '''
     # test expert

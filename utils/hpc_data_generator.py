@@ -9,10 +9,10 @@ Created on Thu Dec  5 11:26:04 2019
 
 import pandas as pd 
 import numpy as np
-
+from core.experts import *
 import os
 
-os.makedirs('scratch/mmy272/test/data/')
+os.makedirs('/scratch/mmy272/test/data/')
 
 # number of rounds
 N = 100

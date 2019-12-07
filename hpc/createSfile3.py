@@ -5,15 +5,15 @@ Created on Sat Nov  9 10:38:23 2019
 
 @author: mingmingyu
 """
-from generateParameter import *
+from hpc.generateParameter import *
 import numpy as np
 from hpc.generateParameter import generateParameter as GP
 from core.fileManager import fileName
 import random,itertools
 import os
 
-n_nodes=5 #number of node
-tpn=4 #task per node
+n_nodes=1 #number of node
+tpn=1 #task per node
 file=open('/scratch/mmy272/test/main_script2/run.s','w')
 file.write(f'#!/bin/bash \n\
 #SBATCH --nodes={n_nodes} \n\

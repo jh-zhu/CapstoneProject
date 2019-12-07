@@ -114,12 +114,12 @@ if __name__ == '__main__':
     
     # file
     file = sys.argv[5]
-    _dir = '/scratch/mmy272/test/scripts2/'
+    _dir = '/scratch/mmy272/test/scripts3/'
     file_obj = open(os.path.join(_dir,file),'r')
     line = file_obj.readline().split(',')
     train_data = line[0]
     test_data = line[1]
-    _sigma = line[2]
+    _sigma = line[2][:-1]
     file_obj.close()
     
     
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     
     # write out results
     file_name = model_name + '_' + model_parameters + '.csv'
-    output_directory = '/scratch/mmy272/test/output2/{}/{}/{}/'.format(_sigma,n_random,n_experts)
+    output_directory = '/scratch/mmy272/test/output3/{}/{}/{}/'.format(_sigma,n_random,n_experts)
 
     output_file_path = os.path.join(output_directory,file_name)
     

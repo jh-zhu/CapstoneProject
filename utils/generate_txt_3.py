@@ -24,11 +24,11 @@ n_experts = [100,200,400,600,800]
 
 
 for sigma in sigmas:
-        os.mkdir('/scratch/mmy272/test/output2/{}/'.format(sigma))
+        os.mkdir('/scratch/mmy272/test/output3/{}/'.format(sigma))
         for m in n_random:
-                os.mkdir('/scratch/mmy272/test/output2/{}/{}/'.format(sigma,m))
+                os.mkdir('/scratch/mmy272/test/output3/{}/{}/'.format(sigma,m))
                 for n in n_experts:
-                        os.mkdir('/scratch/mmy272/test/output2/{}/{}/{}/'.format(sigma,m,n))
+                        os.mkdir('/scratch/mmy272/test/output3/{}/{}/{}/'.format(sigma,m,n))
 
 
 for sigma in sigmas:
