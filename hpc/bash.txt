@@ -59,3 +59,6 @@ python CapstoneProject/core/test_expert.py SVR rbf,0.1,1
 
 # view csv file
 less -S SVR_linear,0.01,0.5.csv
+
+#run job list
+sbatch --array=1-2 run.s

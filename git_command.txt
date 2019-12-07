@@ -12,8 +12,8 @@ Git commit -m “message”
 Git push
 
 #discard local changes to a file
-Git checkout — <file>
+Git checkout —- <file>
 
 #discard all local changes
-Git reset —hard
+Git reset —-hard
  
