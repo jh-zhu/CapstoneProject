@@ -189,6 +189,7 @@ for params in random_params:
    
 '''GRID SEARCH'''
 nums = [2, 3, 2, 2, 2, 2, 1, 1]
+
 n_estimators, max_depth, learning_rate, subsample, colsample_bytree, gamma, alpha, lambd = gen_params(nums, "XGBoost")
   
 for n in n_estimators:

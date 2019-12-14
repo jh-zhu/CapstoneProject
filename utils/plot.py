@@ -110,9 +110,11 @@ def plot_random_grid(num_of_experts, algo_abs_loss, title=None,size = (12,4),out
     
     fig = plt.figure(figsize = size)
     _ = plt.plot(num_of_experts, algo_abs_loss, '-o')
+    for a,b in zip(num_of_experts, algo_abs_loss):
+        plt.annotate('%s'%(round(b,2)),xy=(a,b))
 
     plt.xlabel('Number of Exeprts')
-    plt.ylabel('Algorithm Absolute Loss')
+    plt.ylabel('Algorithm Cumulative Loss')
     
     if title is not None:
         plt.title(title)
